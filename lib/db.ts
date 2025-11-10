@@ -25,6 +25,7 @@ export interface GoogleBook {
     title: string;
     authors?: string[];
     description?: string;
+    categories?: string[];
     imageLinks?: {
       thumbnail?: string;
       smallThumbnail?: string;

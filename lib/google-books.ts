@@ -106,8 +106,10 @@ export function formatGoogleBook(googleBook: GoogleBook) {
     google_books_id: googleBook.id,
     title: volumeInfo.title || 'Unknown Title',
     author: volumeInfo.authors?.[0] || 'Unknown Author',
+    genre: volumeInfo.categories?.[0] || 'General',
+    mood_tags: volumeInfo.categories || [],
+    length: volumeInfo.pageCount || 0,
     cover_url: volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || '',
     description: volumeInfo.description || '',
-    page_count: volumeInfo.pageCount || 0,
   };
 }
