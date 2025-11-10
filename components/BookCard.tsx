@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +24,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MoreVertical, Trash2, MoveRight, TrendingUp } from 'lucide-react';
+import { MoreVertical, Trash2, MoveRight, TrendingUp, BookOpen } from 'lucide-react';
 import type { Book, UserBook, BookStatus } from '@/lib/db';
 
 interface BookCardProps {
@@ -35,10 +36,19 @@ interface BookCardProps {
 }
 
 export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }: BookCardProps) {
+  const router = useRouter();
   const [imageError, setImageError] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showProgressDialog, setShowProgressDialog] = useState(false);
   const [progressInput, setProgressInput] = useState(userBook.progress_percent.toString());
+
+  function handleCardClick(e: React.MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="menuitem"]')) {
+      return;
+    }
+    router.push(`/read/${userBook.id}`);
+  }
 
   const statusLabels: Record<BookStatus, string> = {
     want_to_read: 'Want to Read',
@@ -50,16 +60,24 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
     .filter((s) => s !== userBook.status);
 
   return (
-    <Card className="flex-shrink-0 w-[200px] hover:shadow-lg transition-shadow">
+    <Card className="flex-shrink-0 w-[200px] hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCardClick}>
       <CardContent className="p-4 space-y-3">
         <div className="relative group">
           {book.cover_url && !imageError ? (
-            <img
-              src={book.cover_url}
-              alt={book.title}
-              className="w-full h-[260px] object-cover rounded"
-              onError={() => setImageError(true)}
-            />
+            <div className="relative">
+              <img
+                src={book.cover_url}
+                alt={book.title}
+                className="w-full h-[260px] object-cover rounded"
+                onError={() => setImageError(true)}
+              />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+                <div className="text-white text-center">
+                  <BookOpen className="h-8 w-8 mx-auto mb-2" />
+                  <p className="text-sm font-medium">Click to Read</p>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="w-full h-[260px] bg-muted rounded flex items-center justify-center">
               <span className="text-xs text-muted-foreground text-center px-2">
