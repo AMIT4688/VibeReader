@@ -8,9 +8,22 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { MoreVertical, Trash2, MoveRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MoreVertical, Trash2, MoveRight, TrendingUp } from 'lucide-react';
 import type { Book, UserBook, BookStatus } from '@/lib/db';
 
 interface BookCardProps {
@@ -18,10 +31,14 @@ interface BookCardProps {
   userBook: UserBook;
   onMove: (bookId: string, newStatus: BookStatus) => void;
   onDelete: (bookId: string) => void;
+  onUpdateProgress?: (bookId: string, progress: number) => void;
 }
 
-export function BookCard({ book, userBook, onMove, onDelete }: BookCardProps) {
+export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }: BookCardProps) {
   const [imageError, setImageError] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showProgressDialog, setShowProgressDialog] = useState(false);
+  const [progressInput, setProgressInput] = useState(userBook.progress_percent.toString());
 
   const statusLabels: Record<BookStatus, string> = {
     want_to_read: 'Want to Read',
@@ -68,7 +85,17 @@ export function BookCard({ book, userBook, onMove, onDelete }: BookCardProps) {
                   Move to {statusLabels[status]}
                 </DropdownMenuItem>
               ))}
-              <DropdownMenuItem onClick={() => onDelete(userBook.id)} className="text-destructive">
+              {userBook.status === 'currently_reading' && onUpdateProgress && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setShowProgressDialog(true)}>
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Update Progress
+                  </DropdownMenuItem>
+                </>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Remove
               </DropdownMenuItem>
@@ -106,6 +133,66 @@ export function BookCard({ book, userBook, onMove, onDelete }: BookCardProps) {
           </div>
         )}
       </CardContent>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Book?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove &quot;{book.title}&quot; from your library? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onDelete(userBook.id);
+                setShowDeleteDialog(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showProgressDialog} onOpenChange={setShowProgressDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Update Reading Progress</AlertDialogTitle>
+            <AlertDialogDescription>
+              Update your progress for &quot;{book.title}&quot;
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Label htmlFor="progress">Progress (%)</Label>
+            <Input
+              id="progress"
+              type="number"
+              min="0"
+              max="100"
+              value={progressInput}
+              onChange={(e) => setProgressInput(e.target.value)}
+              className="mt-2"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const progress = Math.max(0, Math.min(100, parseInt(progressInput) || 0));
+                if (onUpdateProgress) {
+                  onUpdateProgress(userBook.id, progress);
+                }
+                setShowProgressDialog(false);
+              }}
+            >
+              Update
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

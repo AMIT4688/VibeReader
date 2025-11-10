@@ -117,6 +117,37 @@ export default function LibraryPage() {
     }
   }
 
+  async function handleUpdateProgress(userBookId: string, progress: number) {
+    try {
+      if (progress >= 100) {
+        const { error } = await (supabase as any)
+          .from('user_books')
+          .update({
+            progress_percent: progress,
+            status: 'finished',
+            finished_at: new Date().toISOString(),
+          })
+          .eq('id', userBookId);
+
+        if (error) throw error;
+        toast.success('Congratulations! Book marked as finished');
+      } else {
+        const { error } = await (supabase as any)
+          .from('user_books')
+          .update({ progress_percent: progress })
+          .eq('id', userBookId);
+
+        if (error) throw error;
+        toast.success('Progress updated');
+      }
+
+      await loadBooks();
+    } catch (error) {
+      console.error('Error updating progress:', error);
+      toast.error('Failed to update progress');
+    }
+  }
+
   function getBooksByStatus(status: BookStatus) {
     return books.filter((b) => b.userBook.status === status);
   }
@@ -160,6 +191,7 @@ export default function LibraryPage() {
                     userBook={userBook}
                     onMove={handleMoveBook}
                     onDelete={handleDeleteBook}
+                    onUpdateProgress={handleUpdateProgress}
                   />
                 ))}
               </div>
@@ -185,6 +217,7 @@ export default function LibraryPage() {
                     userBook={userBook}
                     onMove={handleMoveBook}
                     onDelete={handleDeleteBook}
+                    onUpdateProgress={handleUpdateProgress}
                   />
                 ))}
               </div>
@@ -210,6 +243,7 @@ export default function LibraryPage() {
                     userBook={userBook}
                     onMove={handleMoveBook}
                     onDelete={handleDeleteBook}
+                    onUpdateProgress={handleUpdateProgress}
                   />
                 ))}
               </div>
