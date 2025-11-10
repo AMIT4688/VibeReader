@@ -50,41 +50,72 @@ export function AddBookModal({ open, onOpenChange, onBookAdded }: AddBookModalPr
     setAdding(googleBook.id);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      console.log('📚 Starting to add book:', googleBook.volumeInfo.title);
+
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error('❌ Auth error:', authError);
+        throw new Error('Authentication error: ' + authError.message);
+      }
+      if (!user) {
+        console.error('❌ No user found');
+        throw new Error('Not authenticated');
+      }
+
+      console.log('✅ User authenticated:', user.id);
 
       const formattedBook = formatGoogleBook(googleBook);
+      console.log('📖 Formatted book data:', formattedBook);
 
       let bookId: string;
-      const { data: existingBook } = await (supabase as any)
+      const { data: existingBook, error: checkError } = await (supabase as any)
         .from('books')
         .select('id')
         .eq('google_books_id', formattedBook.google_books_id)
         .maybeSingle();
 
+      if (checkError) {
+        console.error('❌ Error checking existing book:', checkError);
+        throw checkError;
+      }
+
       if (existingBook) {
+        console.log('✅ Book already exists in database:', existingBook.id);
         bookId = existingBook.id;
       } else {
+        console.log('📝 Inserting new book into database...');
         const { data: newBook, error: bookError } = await (supabase as any)
           .from('books')
           .insert([formattedBook])
           .select('id')
           .single();
 
-        if (bookError) throw bookError;
+        if (bookError) {
+          console.error('❌ Error inserting book:', bookError);
+          throw bookError;
+        }
+        console.log('✅ Book inserted successfully:', newBook.id);
         bookId = newBook.id;
       }
 
-      const { data: existingUserBook } = await (supabase as any)
+      console.log('🔍 Checking if user already has this book...');
+      const { data: existingUserBook, error: checkUserBookError } = await (supabase as any)
         .from('user_books')
         .select('id')
         .eq('user_id', user.id)
         .eq('book_id', bookId)
         .maybeSingle();
 
+      if (checkUserBookError) {
+        console.error('❌ Error checking user book:', checkUserBookError);
+        throw checkUserBookError;
+      }
+
       if (existingUserBook) {
+        console.log('⚠️ Book already in user library');
         toast.info('Book already in your library');
       } else {
+        console.log('📝 Adding book to user library...');
         const { error: userBookError } = await (supabase as any)
           .from('user_books')
           .insert([{
@@ -93,7 +124,11 @@ export function AddBookModal({ open, onOpenChange, onBookAdded }: AddBookModalPr
             status,
           }]);
 
-        if (userBookError) throw userBookError;
+        if (userBookError) {
+          console.error('❌ Error adding to user library:', userBookError);
+          throw userBookError;
+        }
+        console.log('✅ Book added to user library successfully!');
         toast.success('Book added to your library!');
       }
 
@@ -102,8 +137,13 @@ export function AddBookModal({ open, onOpenChange, onBookAdded }: AddBookModalPr
       onOpenChange(false);
       onBookAdded?.();
     } catch (error) {
-      console.error('Error adding book:', error);
-      toast.error('Failed to add book');
+      console.error('💥 Error adding book:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        toast.error('Failed to add book: ' + error.message);
+      } else {
+        toast.error('Failed to add book');
+      }
     } finally {
       setAdding(null);
     }
