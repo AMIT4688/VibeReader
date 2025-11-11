@@ -54,12 +54,14 @@ export function Navigation() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200' : 'bg-white border-b border-gray-200'
+      scrolled ? 'bg-white/70 backdrop-blur-xl shadow-lg shadow-purple-500/10' : 'bg-white/90 backdrop-blur-md shadow-md'
     }`}>
-      <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/library" className="flex items-center gap-2 font-semibold text-xl text-[#1D1D1F]">
-          <BookOpen className="h-6 w-6" />
-          <span>VibeReader</span>
+      <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
+        <Link href="/library" className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
+            <BookOpen className="h-6 w-6 text-white" />
+          </div>
+          <span className="font-black text-2xl text-gray-900">VibeReader</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -67,10 +69,10 @@ export function Navigation() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 text-base font-semibold transition-colors ${
                 pathname === href
-                  ? 'text-[#0071E3]'
-                  : 'text-[#1D1D1F] hover:text-[#0071E3]'
+                  ? 'text-purple-600'
+                  : 'text-gray-700 hover:text-purple-600'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -82,7 +84,7 @@ export function Navigation() {
             onClick={handleSignOut}
             variant="ghost"
             size="sm"
-            className="text-[#86868B] hover:text-[#1D1D1F] hover:bg-[#F5F5F7]"
+            className="text-gray-600 hover:text-purple-600 hover:bg-purple-50 font-semibold"
           >
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
@@ -90,7 +92,7 @@ export function Navigation() {
         </div>
 
         <button
-          className="md:hidden text-[#1D1D1F]"
+          className="md:hidden text-gray-900"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -98,13 +100,13 @@ export function Navigation() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 py-4 px-6 space-y-4">
+        <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200 py-4 px-6 space-y-4">
           {links.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 text-base font-medium ${
-                pathname === href ? 'text-[#0071E3]' : 'text-[#1D1D1F]'
+              className={`flex items-center gap-3 text-lg font-semibold ${
+                pathname === href ? 'text-purple-600' : 'text-gray-900'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -117,7 +119,7 @@ export function Navigation() {
               handleSignOut();
               setMobileMenuOpen(false);
             }}
-            className="flex items-center gap-3 text-base font-medium text-[#86868B] w-full"
+            className="flex items-center gap-3 text-lg font-semibold text-gray-600 w-full"
           >
             <LogOut className="h-5 w-5" />
             Sign Out

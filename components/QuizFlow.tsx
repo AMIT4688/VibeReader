@@ -384,7 +384,7 @@ export function QuizFlow({ onComplete, loading = false }: QuizFlowProps) {
           <Button
             onClick={handleNext}
             disabled={!canProceed() || loading}
-            className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-black rounded-full shadow-2xl transition-all hover:scale-105 disabled:opacity-50 border-4 border-white"
+            className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-black rounded-full shadow-2xl transition-all hover:scale-105 disabled:opacity-50 border-4 border-white"
           >
             {loading ? (
               <>

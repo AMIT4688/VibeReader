@@ -1,34 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 39 41% 95%;
-    --foreground: 210 24% 16%;
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 210 24% 16%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 210 24% 16%;
-    --primary: 210 24% 16%;
-    --primary-foreground: 39 41% 95%;
-    --secondary: 39 41% 92%;
-    --secondary-foreground: 210 24% 16%;
-    --muted: 39 41% 92%;
-    --muted-foreground: 210 11% 47%;
-    --accent: 11 69% 65%;
-    --accent-foreground: 39 41% 95%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 271 81% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 330 81% 60%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 270 20% 96%;
+    --muted-foreground: 222 13% 45%;
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 39 21% 85%;
-    --input: 39 21% 85%;
-    --ring: 210 24% 16%;
-    --chart-1: 11 69% 65%;
-    --chart-2: 210 24% 16%;
-    --chart-3: 45 93% 58%;
-    --chart-4: 190 66% 65%;
-    --chart-5: 280 67% 70%;
-    --radius: 0.5rem;
+    --border: 222 13% 90%;
+    --input: 222 13% 90%;
+    --ring: 271 81% 56%;
+    --chart-1: 271 81% 56%;
+    --chart-2: 330 81% 60%;
+    --chart-3: 25 95% 53%;
+    --chart-4: 197 71% 73%;
+    --chart-5: 262 52% 47%;
+    --radius: 0.75rem;
   }
 }
 
@@ -43,6 +45,12 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 900;
   }
 }
 

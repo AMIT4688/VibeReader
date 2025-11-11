@@ -219,7 +219,7 @@ export function RecommendationCard({ recommendation, onAdded }: RecommendationCa
             className={`w-full py-6 text-lg font-black rounded-2xl shadow-lg transition-all transform hover:scale-105 ${
               added
                 ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
-                : 'bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700'
+                : 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700'
             }`}
           >
             {adding ? (

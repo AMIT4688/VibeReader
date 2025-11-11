@@ -51,7 +51,7 @@ export default function RecommendationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
         <Navigation />
         <div className="pt-16 flex items-center justify-center min-h-screen">
           <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
@@ -62,7 +62,7 @@ export default function RecommendationsPage() {
 
   if (showQuiz || (recommendations.length === 0 && !showQuiz)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
         <Navigation />
         <div className="pt-16">
           <div className="max-w-[1200px] mx-auto px-6 py-16">
@@ -70,14 +70,14 @@ export default function RecommendationsPage() {
               <div className="max-w-5xl mx-auto text-center space-y-12">
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                   <div className="relative inline-block">
-                    <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-full blur-2xl opacity-30 animate-pulse"></div>
-                    <div className="relative inline-flex items-center justify-center w-28 h-28 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 shadow-2xl">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 rounded-full blur-2xl opacity-30 animate-pulse"></div>
+                    <div className="relative inline-flex items-center justify-center w-28 h-28 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 shadow-2xl">
                       <Sparkles className="h-14 w-14 text-white animate-pulse" />
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h1 className="text-6xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent leading-tight">
+                    <h1 className="text-6xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent leading-tight">
                       Find Your Next
                       <br />
                       Amazing Book!
@@ -146,7 +146,7 @@ export default function RecommendationsPage() {
                 <Button
                   size="lg"
                   onClick={() => setShowQuiz(true)}
-                  className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white px-12 py-8 text-2xl font-black rounded-full shadow-2xl transition-all hover:scale-110 border-4 border-white"
+                  className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white px-12 py-8 text-2xl font-black rounded-full shadow-2xl transition-all hover:scale-110 border-4 border-white"
                 >
                   <Sparkles className="h-8 w-8 mr-3 animate-pulse" />
                   Start the Fun Quiz!
@@ -178,7 +178,7 @@ export default function RecommendationsPage() {
             </div>
 
             <div>
-              <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
+              <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent mb-4">
                 Your Perfect Books Are Here!
               </h1>
               <p className="text-2xl font-bold text-gray-700">
@@ -215,7 +215,7 @@ export default function RecommendationsPage() {
           </div>
 
           <div className="mt-16 text-center space-y-6">
-            <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-3xl p-1 max-w-3xl mx-auto shadow-2xl">
+            <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-3xl p-1 max-w-3xl mx-auto shadow-2xl">
               <div className="bg-white rounded-3xl p-8">
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <Star className="h-8 w-8 text-yellow-500 fill-yellow-500" />

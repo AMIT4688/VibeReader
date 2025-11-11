@@ -159,7 +159,7 @@ export default function LibraryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
         <Navigation />
         <div className="pt-16 flex items-center justify-center min-h-screen">
           <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
@@ -169,7 +169,7 @@ export default function LibraryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       <Navigation />
 
       <div className="pt-16">
@@ -179,7 +179,7 @@ export default function LibraryPage() {
               <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
                 <div className="text-6xl">📚</div>
               </div>
-              <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent mb-3">
+              <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent mb-3">
                 My Awesome Library!
               </h1>
               <p className="text-2xl font-bold text-gray-700">
@@ -189,7 +189,7 @@ export default function LibraryPage() {
             <Button
               size="lg"
               onClick={() => setShowAddBook(true)}
-              className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white px-8 py-6 text-xl font-black rounded-full shadow-2xl transition-all hover:scale-110 border-4 border-white"
+              className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white px-8 py-6 text-xl font-black rounded-full shadow-2xl transition-all hover:scale-110 border-4 border-white"
             >
               <Plus className="h-6 w-6 mr-2" />
               Add New Book!
