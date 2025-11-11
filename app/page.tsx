@@ -6,8 +6,10 @@ import { supabase } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { BookOpen, Sparkles, TrendingUp, Zap, Users, Star, Search, ShoppingBag, Menu, X, ChevronRight, ArrowRight, Check, XCircle } from 'lucide-react';
+import { BookOpen, Sparkles, TrendingUp, Zap, Users, Star, Search, ShoppingBag, Menu, X, ChevronRight, ArrowRight, Check, XCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getVibeBasedRecommendations, type AIBookRecommendation } from '@/lib/claude-ai';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function Home() {
   const router = useRouter();
@@ -20,6 +22,9 @@ export default function Home() {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeVibe, setActiveVibe] = useState<string | null>(null);
+  const [showVibeModal, setShowVibeModal] = useState(false);
+  const [vibeRecommendations, setVibeRecommendations] = useState<AIBookRecommendation[]>([]);
+  const [loadingVibe, setLoadingVibe] = useState(false);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -81,6 +86,35 @@ export default function Home() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       router.push('/library');
+    }
+  }
+
+  async function handleVibeClick(vibe: string) {
+    setActiveVibe(vibe);
+    setShowVibeModal(true);
+    setLoadingVibe(true);
+    setVibeRecommendations([]);
+
+    try {
+      // Save vibe preference to database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await (supabase as any).from('user_vibe_preferences').insert({
+          user_id: user.id,
+          vibe: vibe,
+          selected_at: new Date().toISOString(),
+        });
+      }
+
+      // Get AI recommendations
+      const recommendations = await getVibeBasedRecommendations(vibe);
+      setVibeRecommendations(recommendations);
+      toast.success(`Found ${recommendations.length} perfect ${vibe} books for you!`);
+    } catch (error) {
+      console.error('Error getting vibe recommendations:', error);
+      toast.error('Failed to load recommendations. Please try again.');
+    } finally {
+      setLoadingVibe(false);
     }
   }
 
@@ -339,11 +373,11 @@ export default function Home() {
             {vibes.map((vibe) => (
               <button
                 key={vibe.label}
-                onClick={() => setActiveVibe(activeVibe === vibe.label ? null : vibe.label)}
-                className={`group px-6 py-3 rounded-full font-bold text-base transition-all duration-300 ${
+                onClick={() => handleVibeClick(vibe.label)}
+                className={`group px-6 py-3 rounded-full font-bold text-base transition-all duration-300 cursor-pointer ${
                   activeVibe === vibe.label
                     ? `bg-white text-purple-600 shadow-2xl scale-110`
-                    : `bg-gradient-to-r ${vibe.color} text-white hover:scale-105 shadow-xl`
+                    : `bg-gradient-to-r ${vibe.color} text-white hover:scale-105 shadow-xl hover:shadow-2xl`
                 }`}
               >
                 <span className="mr-2">{vibe.emoji}</span>
@@ -445,6 +479,98 @@ export default function Home() {
           </Card>
         </div>
       </section>
+
+      {/* Vibe Recommendations Modal */}
+      <Dialog open={showVibeModal} onOpenChange={setShowVibeModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent">
+              {activeVibe && (
+                <span className="flex items-center gap-3">
+                  <span className="text-4xl">
+                    {vibes.find(v => v.label === activeVibe)?.emoji}
+                  </span>
+                  {activeVibe} Vibes
+                </span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          {loadingVibe ? (
+            <div className="py-20 text-center">
+              <Loader2 className="h-12 w-12 animate-spin text-purple-600 mx-auto mb-4" />
+              <p className="text-lg text-gray-600 font-semibold">Finding perfect books for your {activeVibe} vibe...</p>
+            </div>
+          ) : (
+            <div className="space-y-4 mt-6">
+              {vibeRecommendations.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-lg text-gray-600">No recommendations found. Please try again.</p>
+                </div>
+              ) : (
+                vibeRecommendations.map((book, index) => (
+                  <div
+                    key={index}
+                    className="bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 rounded-2xl p-6 border-2 border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg"
+                  >
+                    <div className="flex gap-4">
+                      {book.coverUrl && (
+                        <img
+                          src={book.coverUrl}
+                          alt={book.title}
+                          className="w-24 h-36 rounded-lg shadow-lg object-cover flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-black text-gray-900 mb-1">{book.title}</h3>
+                        <p className="text-sm font-semibold text-gray-600 mb-3">by {book.author}</p>
+
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="flex items-center gap-1 bg-purple-100 px-3 py-1 rounded-full">
+                            <Star className="h-4 w-4 text-purple-600 fill-purple-600" />
+                            <span className="text-sm font-bold text-purple-700">{book.matchScore}% Match</span>
+                          </div>
+                          <div className="text-xs bg-white px-3 py-1 rounded-full font-semibold text-gray-700">
+                            {book.analytics.pageCount} pages
+                          </div>
+                          <div className="text-xs bg-white px-3 py-1 rounded-full font-semibold text-gray-700 capitalize">
+                            {book.analytics.pacing} paced
+                          </div>
+                        </div>
+
+                        <p className="text-sm text-gray-700 mb-3 line-clamp-2">{book.description}</p>
+
+                        <p className="text-sm font-semibold text-purple-700 mb-3">
+                          💡 {book.matchExplanation}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {book.analytics.moods.slice(0, 3).map((mood, i) => (
+                            <span key={i} className="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded-full font-semibold">
+                              {mood}
+                            </span>
+                          ))}
+                        </div>
+
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg"
+                          onClick={() => {
+                            setShowVibeModal(false);
+                            router.push('/recommendations');
+                          }}
+                        >
+                          Add to Library
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

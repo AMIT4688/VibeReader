@@ -256,6 +256,179 @@ function getMoodDescription(happySad: number, hopefulBleak: number): string {
   return moodParts.length > 0 ? moodParts.join(' and ') : 'balanced';
 }
 
+export async function getVibeBasedRecommendations(
+  vibe: string
+): Promise<AIBookRecommendation[]> {
+  if (!OPENROUTER_API_KEY) {
+    console.log('No OpenRouter API key, falling back to Google Books search');
+    return getGoogleBooksVibeRecommendations(vibe);
+  }
+
+  try {
+    console.log('Getting AI recommendations for vibe:', vibe);
+    const prompt = buildVibePrompt(vibe);
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : '',
+        'X-Title': 'VibeReader',
+      },
+      body: JSON.stringify({
+        model: 'anthropic/claude-3.5-sonnet',
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenRouter API error:', errorText);
+      throw new Error(`OpenRouter API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    console.log('AI Response received for vibe:', vibe);
+
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error('No valid JSON found in response');
+    }
+
+    const aiSuggestions = JSON.parse(jsonMatch[0]);
+    console.log('AI suggested', aiSuggestions.length, 'books for vibe:', vibe);
+
+    const recommendations: AIBookRecommendation[] = [];
+
+    for (const suggestion of aiSuggestions.slice(0, 6)) {
+      const searchQuery = `${suggestion.title} ${suggestion.author}`;
+      const books = await searchBooks(searchQuery, 1);
+
+      if (books.length > 0) {
+        const book = formatGoogleBook(books[0]);
+        recommendations.push({
+          title: book.title,
+          author: book.author,
+          description: book.description || suggestion.description || 'No description available.',
+          matchScore: suggestion.matchScore || 90,
+          matchExplanation: suggestion.matchExplanation || `Perfect for ${vibe} vibes!`,
+          coverUrl: book.cover_url,
+          googleBooksId: book.google_books_id,
+          analytics: {
+            pageCount: book.length || suggestion.analytics?.pageCount || 300,
+            pacing: suggestion.analytics?.pacing || 'medium',
+            moods: suggestion.analytics?.moods || [vibe.toLowerCase()],
+            themes: suggestion.analytics?.themes || [book.genre || 'Fiction'],
+          },
+        });
+      } else {
+        recommendations.push({
+          ...suggestion,
+          analytics: {
+            pageCount: suggestion.analytics?.pageCount || 300,
+            pacing: suggestion.analytics?.pacing || 'medium',
+            moods: suggestion.analytics?.moods || [vibe.toLowerCase()],
+            themes: suggestion.analytics?.themes || ['Fiction'],
+          },
+        });
+      }
+    }
+
+    return recommendations;
+  } catch (error) {
+    console.error('Error getting vibe-based AI recommendations:', error);
+    return getGoogleBooksVibeRecommendations(vibe);
+  }
+}
+
+function buildVibePrompt(vibe: string): string {
+  const vibeDescriptions: Record<string, string> = {
+    'Energetic': 'fast-paced, action-packed, thrilling books with high energy and excitement',
+    'Calm': 'peaceful, meditative, slow-paced books that promote relaxation and contemplation',
+    'Motivated': 'inspiring, self-improvement, achievement-focused books that drive ambition',
+    'Reflective': 'thought-provoking, philosophical, introspective books that encourage deep thinking',
+  };
+
+  const description = vibeDescriptions[vibe] || 'engaging and well-written books';
+
+  return `You are a book recommendation expert. Recommend books that match the "${vibe}" vibe.
+
+Vibe description: ${description}
+
+Return ONLY valid JSON array with 6 books. Do not include any other text:
+[{
+  "title": "Book Title",
+  "author": "Author Name",
+  "description": "Two engaging sentences explaining why this book matches the ${vibe} vibe",
+  "matchScore": 92,
+  "matchExplanation": "Why this book perfectly captures ${vibe} energy",
+  "analytics": {
+    "pageCount": 310,
+    "pacing": "fast",
+    "moods": ["${vibe.toLowerCase()}", "engaging", "immersive"],
+    "themes": ["adventure", "discovery"]
+  }
+}]`;
+}
+
+async function getGoogleBooksVibeRecommendations(
+  vibe: string
+): Promise<AIBookRecommendation[]> {
+  console.log('Using Google Books search for vibe:', vibe);
+
+  const vibeQueries: Record<string, string[]> = {
+    'Energetic': ['subject:thriller', 'subject:action', 'subject:adventure'],
+    'Calm': ['subject:meditation', 'subject:nature', 'subject:poetry'],
+    'Motivated': ['subject:self-help', 'subject:business', 'subject:biography'],
+    'Reflective': ['subject:philosophy', 'subject:literary fiction', 'subject:memoir'],
+  };
+
+  const queries = vibeQueries[vibe] || ['bestseller'];
+  const recommendations: AIBookRecommendation[] = [];
+  const searchedBooks = new Set<string>();
+
+  for (const query of queries) {
+    const books = await searchBooks(query, 10);
+
+    for (const googleBook of books) {
+      const book = formatGoogleBook(googleBook);
+      const bookKey = `${book.title}-${book.author}`;
+
+      if (searchedBooks.has(bookKey)) continue;
+      searchedBooks.add(bookKey);
+
+      recommendations.push({
+        title: book.title,
+        author: book.author,
+        description: book.description || 'No description available.',
+        matchScore: 85 + Math.floor(Math.random() * 15),
+        matchExplanation: `This book captures the ${vibe} energy you're looking for!`,
+        coverUrl: book.cover_url,
+        googleBooksId: book.google_books_id,
+        analytics: {
+          pageCount: book.length || 300,
+          pacing: vibe === 'Energetic' ? 'fast' : vibe === 'Calm' ? 'slow' : 'medium',
+          moods: [vibe.toLowerCase(), 'engaging'],
+          themes: [book.genre || 'Fiction'],
+        },
+      });
+
+      if (recommendations.length >= 6) break;
+    }
+
+    if (recommendations.length >= 6) break;
+  }
+
+  return recommendations.slice(0, 6);
+}
+
 function getMockRecommendations(preferences: QuizPreferences): AIBookRecommendation[] {
   const mockBooks: AIBookRecommendation[] = [
     {
