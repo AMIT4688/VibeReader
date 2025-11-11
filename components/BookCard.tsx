@@ -85,8 +85,8 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
     .filter((s) => s !== userBook.status);
 
   return (
-    <Card className="flex-shrink-0 w-[200px] hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCardClick}>
-      <CardContent className="p-4 space-y-3">
+    <Card className="flex-shrink-0 w-[240px] hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCardClick}>
+      <CardContent className="p-4 space-y-3 flex flex-col h-full">
         <div className="relative group">
           {book.cover_url && !imageError ? (
             <div className="relative">
@@ -146,9 +146,18 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
           </DropdownMenu>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-2 flex-1">
           <h3 className="font-semibold text-sm line-clamp-2 leading-tight">{book.title}</h3>
           <p className="text-xs text-muted-foreground line-clamp-1">{book.author}</p>
+          {book.description && (
+            <div className="bg-purple-50 rounded-lg p-2 border border-purple-100">
+              <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed italic">
+                {book.description.length > 150
+                  ? `${book.description.substring(0, 150)}...`
+                  : book.description}
+              </p>
+            </div>
+          )}
         </div>
 
         {userBook.status === 'currently_reading' && userBook.progress_percent > 0 && (
