@@ -55,7 +55,6 @@ export function formatBookForDatabase(book: GoogleBook) {
     genre: volumeInfo.categories?.[0] || 'General',
     mood_tags: volumeInfo.categories || [],
     length: volumeInfo.pageCount || 0,
-    page_count: volumeInfo.pageCount || 0,
     cover_url: volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || '',
     description: volumeInfo.description || '',
   };
