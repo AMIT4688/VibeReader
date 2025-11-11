@@ -26,12 +26,28 @@ export interface AIBookRecommendation {
 }
 
 const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+const GOOGLE_AI_STUDIO_KEY = process.env.NEXT_PUBLIC_GOOGLE_AI_STUDIO_API_KEY;
+
+type AIProvider = 'google-ai-studio' | 'openrouter' | 'fallback';
+
+function getAvailableProvider(): AIProvider {
+  if (GOOGLE_AI_STUDIO_KEY && GOOGLE_AI_STUDIO_KEY !== 'your_google_ai_studio_api_key_here') {
+    return 'google-ai-studio';
+  }
+  if (OPENROUTER_API_KEY) {
+    return 'openrouter';
+  }
+  return 'fallback';
+}
 
 export async function getAIRecommendations(
   preferences: QuizPreferences
 ): Promise<AIBookRecommendation[]> {
-  if (!OPENROUTER_API_KEY) {
-    console.log('No OpenRouter API key, falling back to Google Books search');
+  const provider = getAvailableProvider();
+  console.log('Using AI provider:', provider);
+
+  if (provider === 'fallback') {
+    console.log('No AI API keys configured, falling back to Google Books search');
     return getGoogleBooksRecommendations(preferences);
   }
 
@@ -39,33 +55,14 @@ export async function getAIRecommendations(
     console.log('Getting AI recommendations with preferences:', preferences);
     const prompt = buildPrompt(preferences);
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : '',
-        'X-Title': 'VibeReader',
-      },
-      body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet',
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      }),
-    });
+    let content: string;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenRouter API error:', errorText);
-      throw new Error(`OpenRouter API error: ${response.statusText}`);
+    if (provider === 'google-ai-studio') {
+      content = await callGoogleAIStudio(prompt);
+    } else {
+      content = await callOpenRouter(prompt);
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
     console.log('AI Response received:', content.substring(0, 200));
 
     const jsonMatch = content.match(/\[[\s\S]*\]/);
@@ -256,11 +253,80 @@ function getMoodDescription(happySad: number, hopefulBleak: number): string {
   return moodParts.length > 0 ? moodParts.join(' and ') : 'balanced';
 }
 
+async function callGoogleAIStudio(prompt: string): Promise<string> {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_STUDIO_KEY}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Google AI Studio API error:', errorText);
+    throw new Error(`Google AI Studio API error: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+async function callOpenRouter(prompt: string): Promise<string> {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : '',
+      'X-Title': 'VibeReader',
+    },
+    body: JSON.stringify({
+      model: 'anthropic/claude-3.5-sonnet',
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('OpenRouter API error:', errorText);
+    throw new Error(`OpenRouter API error: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
 export async function getVibeBasedRecommendations(
   vibe: string
 ): Promise<AIBookRecommendation[]> {
-  if (!OPENROUTER_API_KEY) {
-    console.log('No OpenRouter API key, falling back to Google Books search');
+  const provider = getAvailableProvider();
+  console.log('Using AI provider for vibe recommendations:', provider);
+
+  if (provider === 'fallback') {
+    console.log('No AI API keys configured, falling back to Google Books search');
     return getGoogleBooksVibeRecommendations(vibe);
   }
 
@@ -268,33 +334,13 @@ export async function getVibeBasedRecommendations(
     console.log('Getting AI recommendations for vibe:', vibe);
     const prompt = buildVibePrompt(vibe);
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : '',
-        'X-Title': 'VibeReader',
-      },
-      body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet',
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenRouter API error:', errorText);
-      throw new Error(`OpenRouter API error: ${response.statusText}`);
+    let content: string;
+    if (provider === 'google-ai-studio') {
+      content = await callGoogleAIStudio(prompt);
+    } else {
+      content = await callOpenRouter(prompt);
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
     console.log('AI Response received for vibe:', vibe);
 
     const jsonMatch = content.match(/\[[\s\S]*\]/);

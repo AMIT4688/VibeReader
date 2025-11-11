@@ -342,20 +342,54 @@ export default function ReadBookClient() {
 
             {/* Show iframe viewer for embeddable books */}
             {!viewerError && viewerLoaded && googleBooksInfo?.bookId && (
-              <div className="relative w-full" style={{ height: '800px' }}>
-                <iframe
-                  src={`https://books.google.com/books?id=${googleBooksInfo.bookId}&lpg=PP1&pg=PP1&output=embed`}
-                  className="absolute top-0 left-0 w-full h-full border-0"
-                  title={`${bookData.book.title} - Book Viewer`}
-                  allowFullScreen
-                  onLoad={() => {
-                    console.log('Book viewer loaded successfully');
-                  }}
-                  onError={() => {
-                    setViewerError('Failed to load book viewer. The book may not be available for preview.');
-                    setViewerLoaded(false);
-                  }}
-                />
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 rounded-xl p-4 border-2 border-purple-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <BookOpen className="h-5 w-5 text-purple-600" />
+                      <span className="font-bold text-gray-900">Interactive Reader</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                        ✓ Available
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Use the navigation controls inside the reader to browse pages, search text, and adjust settings.
+                  </p>
+                </div>
+
+                <div className="relative w-full bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200" style={{ height: '800px' }}>
+                  <iframe
+                    src={`https://books.google.com/books?id=${googleBooksInfo.bookId}&lpg=PP1&pg=PP1&output=embed`}
+                    className="absolute top-0 left-0 w-full h-full border-0"
+                    title={`${bookData.book.title} - Book Viewer`}
+                    allowFullScreen
+                    onLoad={() => {
+                      console.log('Book viewer loaded successfully');
+                    }}
+                    onError={() => {
+                      setViewerError('Failed to load book viewer. The book may not be available for preview.');
+                      setViewerLoaded(false);
+                    }}
+                  />
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">💡</div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-blue-900 mb-2">Reading Tips:</p>
+                      <ul className="text-sm text-blue-800 space-y-1">
+                        <li>• Use arrow keys or click arrows to navigate pages</li>
+                        <li>• Click the search icon to find specific content</li>
+                        <li>• Adjust zoom level for comfortable reading</li>
+                        <li>• Your progress is automatically saved as you read</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
