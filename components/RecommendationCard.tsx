@@ -20,11 +20,19 @@ export function RecommendationCard({ recommendation, onAdded }: RecommendationCa
   const [added, setAdded] = useState(false);
 
   async function handleAddToLibrary() {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      sessionStorage.setItem('pendingRecommendation', JSON.stringify(recommendation));
+      sessionStorage.setItem('redirectAfterAuth', window.location.pathname);
+      toast.error('Please sign up or log in to add books to your library!');
+      window.location.href = '/#get-started';
+      return;
+    }
+
     setAdding(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
 
       let bookId: string;
       let googleBooksId: string | null = null;

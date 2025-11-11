@@ -99,10 +99,34 @@ export default function Home() {
     const pendingVibe = sessionStorage.getItem('pendingVibe');
     const pendingRecommendations = sessionStorage.getItem('pendingRecommendations');
     const pendingBook = sessionStorage.getItem('pendingBook');
+    const pendingRecommendation = sessionStorage.getItem('pendingRecommendation');
+    const redirectAfterAuth = sessionStorage.getItem('redirectAfterAuth');
 
-    if (pendingVibe && pendingRecommendations) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      if (pendingRecommendation && redirectAfterAuth) {
+        try {
+          const recommendation = JSON.parse(pendingRecommendation);
+          sessionStorage.removeItem('pendingRecommendation');
+          sessionStorage.removeItem('redirectAfterAuth');
+
+          toast.success('Welcome! Adding book to your library...');
+
+          await addRecommendationToLibrary(recommendation);
+
+          setTimeout(() => {
+            router.push(redirectAfterAuth);
+          }, 1000);
+        } catch (error) {
+          console.error('Error restoring recommendation:', error);
+          sessionStorage.removeItem('pendingRecommendation');
+          sessionStorage.removeItem('redirectAfterAuth');
+        }
+        return;
+      }
+
+      if (pendingVibe && pendingRecommendations) {
         try {
           const recommendations = JSON.parse(pendingRecommendations);
           setActiveVibe(pendingVibe);
@@ -129,6 +153,72 @@ export default function Home() {
           sessionStorage.removeItem('pendingBook');
         }
       }
+    }
+  }
+
+  async function addRecommendationToLibrary(recommendation: AIBookRecommendation) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      let bookId: string;
+      const { data: existingBooks, error: searchError } = await supabase
+        .from('books')
+        .select('id')
+        .eq('title', recommendation.title)
+        .eq('author', recommendation.author)
+        .maybeSingle();
+
+      if (searchError) throw searchError;
+
+      if (existingBooks) {
+        bookId = (existingBooks as any).id;
+      } else {
+        const { data: newBook, error: insertError } = await (supabase as any)
+          .from('books')
+          .insert({
+            title: recommendation.title,
+            author: recommendation.author,
+            cover_url: recommendation.coverUrl || null,
+            description: recommendation.description,
+            page_count: recommendation.analytics.pageCount,
+            google_books_id: recommendation.googleBooksId || null,
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        bookId = newBook.id;
+      }
+
+      const { data: existingUserBook } = await (supabase as any)
+        .from('user_books')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('book_id', bookId)
+        .maybeSingle();
+
+      if (existingUserBook) {
+        toast.info('This book is already in your library!');
+        return;
+      }
+
+      const { error: addError } = await (supabase as any)
+        .from('user_books')
+        .insert({
+          user_id: user.id,
+          book_id: bookId,
+          status: 'want_to_read',
+          progress_percent: 0,
+          ai_analytics: recommendation.analytics,
+        });
+
+      if (addError) throw addError;
+
+      toast.success(`${recommendation.title} added to your library!`);
+    } catch (error) {
+      console.error('Error adding book:', error);
+      toast.error('Failed to add book. Please try again.');
     }
   }
 
