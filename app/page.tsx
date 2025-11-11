@@ -50,6 +50,7 @@ export default function Home() {
 
   useEffect(() => {
     checkUser();
+    restorePendingVibe();
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -87,7 +88,47 @@ export default function Home() {
   async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      router.push('/library');
+      const pendingVibe = sessionStorage.getItem('pendingVibe');
+      if (!pendingVibe) {
+        router.push('/library');
+      }
+    }
+  }
+
+  async function restorePendingVibe() {
+    const pendingVibe = sessionStorage.getItem('pendingVibe');
+    const pendingRecommendations = sessionStorage.getItem('pendingRecommendations');
+    const pendingBook = sessionStorage.getItem('pendingBook');
+
+    if (pendingVibe && pendingRecommendations) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        try {
+          const recommendations = JSON.parse(pendingRecommendations);
+          setActiveVibe(pendingVibe);
+          setVibeRecommendations(recommendations);
+          setShowVibeModal(true);
+
+          sessionStorage.removeItem('pendingVibe');
+          sessionStorage.removeItem('pendingRecommendations');
+
+          toast.success('Welcome! Here are your recommendations.');
+
+          if (pendingBook) {
+            const bookToAdd = JSON.parse(pendingBook);
+            sessionStorage.removeItem('pendingBook');
+
+            setTimeout(() => {
+              handleAddVibeBook(bookToAdd);
+            }, 500);
+          }
+        } catch (error) {
+          console.error('Error restoring vibe:', error);
+          sessionStorage.removeItem('pendingVibe');
+          sessionStorage.removeItem('pendingRecommendations');
+          sessionStorage.removeItem('pendingBook');
+        }
+      }
     }
   }
 
@@ -126,9 +167,12 @@ export default function Home() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
+      sessionStorage.setItem('pendingVibe', activeVibe || '');
+      sessionStorage.setItem('pendingRecommendations', JSON.stringify(vibeRecommendations));
+      sessionStorage.setItem('pendingBook', JSON.stringify(book));
+
       toast.error('Please sign up or log in to add books to your library!');
       setShowVibeModal(false);
-      // Scroll to sign up section
       setTimeout(() => {
         document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' });
       }, 300);
