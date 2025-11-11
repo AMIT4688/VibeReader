@@ -57,7 +57,7 @@ export function Navigation() {
       scrolled ? 'bg-white/70 backdrop-blur-xl shadow-lg shadow-purple-500/10' : 'bg-white/90 backdrop-blur-md shadow-md'
     }`}>
       <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/library" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
             <BookOpen className="h-6 w-6 text-white" />
           </div>
