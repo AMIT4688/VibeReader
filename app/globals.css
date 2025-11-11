@@ -36,7 +36,67 @@
   * {
     @apply border-border;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-from-bottom-8 {
+  from {
+    transform: translateY(2rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-from-bottom-12 {
+  from {
+    transform: translateY(3rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.slide-in-from-bottom-8 {
+  animation-name: slide-in-from-bottom-8;
+}
+
+.slide-in-from-bottom-12 {
+  animation-name: slide-in-from-bottom-12;
+}
+
+.duration-1000 {
+  animation-duration: 1000ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
 }
