@@ -25,8 +25,8 @@ export interface AIBookRecommendation {
   };
 }
 
-const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
-const GOOGLE_AI_STUDIO_KEY = process.env.NEXT_PUBLIC_GOOGLE_AI_STUDIO_API_KEY;
+const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
+const GOOGLE_AI_STUDIO_KEY = process.env.NEXT_PUBLIC_GOOGLE_AI_STUDIO_API_KEY || '';
 
 type AIProvider = 'google-ai-studio' | 'openrouter' | 'fallback';
 
