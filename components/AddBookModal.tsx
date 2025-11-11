@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Search, Loader2, BookOpen } from 'lucide-react';
-import { searchBooks, formatGoogleBook } from '@/lib/google-books';
+import { searchAllBooks, formatBookForDatabase } from '@/lib/book-search';
 import { supabase, type BookStatus, type GoogleBook } from '@/lib/db';
 import { toast } from 'sonner';
 
@@ -30,11 +30,13 @@ export function AddBookModal({ open, onOpenChange, onBookAdded }: AddBookModalPr
     setSearching(true);
     try {
       console.log('Searching for:', searchQuery);
-      const results = await searchBooks(searchQuery);
-      console.log('Search results:', results.length, 'books found');
+      const results = await searchAllBooks(searchQuery);
+      console.log('Search results:', results.length, 'books found from all sources');
 
       if (results.length === 0) {
         toast.info('No books found. Try a different search term.');
+      } else {
+        toast.success(`Found ${results.length} books from Google Books and Open Library!`);
       }
 
       setSearchResults(results);
@@ -64,15 +66,21 @@ export function AddBookModal({ open, onOpenChange, onBookAdded }: AddBookModalPr
 
       console.log('✅ User authenticated:', user.id);
 
-      const formattedBook = formatGoogleBook(googleBook);
+      const formattedBook = formatBookForDatabase(googleBook);
       console.log('📖 Formatted book data:', formattedBook);
 
       let bookId: string;
-      const { data: existingBook, error: checkError } = await (supabase as any)
-        .from('books')
-        .select('id')
-        .eq('google_books_id', formattedBook.google_books_id)
-        .maybeSingle();
+
+      // Check if book exists by either Google Books ID or Open Library ID
+      let existingBookQuery = supabase.from('books').select('id');
+
+      if (formattedBook.google_books_id) {
+        existingBookQuery = existingBookQuery.eq('google_books_id', formattedBook.google_books_id);
+      } else if (formattedBook.open_library_id) {
+        existingBookQuery = existingBookQuery.eq('open_library_id', formattedBook.open_library_id);
+      }
+
+      const { data: existingBook, error: checkError } = await (existingBookQuery as any).maybeSingle();
 
       if (checkError) {
         console.error('❌ Error checking existing book:', checkError);

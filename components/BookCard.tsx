@@ -48,7 +48,14 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
       return;
     }
 
-    // Redirect all books to Google Books
+    // Check if book has Open Library ID
+    if ((book as any).open_library_id) {
+      const openLibraryUrl = `https://openlibrary.org${(book as any).open_library_id}`;
+      window.open(openLibraryUrl, '_blank');
+      return;
+    }
+
+    // Otherwise, use Google Books
     let bookId = book.google_books_id;
 
     // If no google_books_id, search for it
@@ -99,7 +106,9 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                 <div className="text-white text-center">
                   <BookOpen className="h-8 w-8 mx-auto mb-2" />
-                  <p className="text-sm font-medium">View on Google Books</p>
+                  <p className="text-sm font-medium">
+                    {(book as any).open_library_id ? 'View on Open Library' : 'View on Google Books'}
+                  </p>
                 </div>
               </div>
             </div>
