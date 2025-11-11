@@ -13,7 +13,6 @@ export interface Database {
         Row: {
           id: string
           google_books_id: string | null
-          open_library_id: string | null
           title: string
           author: string | null
           cover_url: string | null
@@ -24,7 +23,6 @@ export interface Database {
         Insert: {
           id?: string
           google_books_id?: string | null
-          open_library_id?: string | null
           title: string
           author?: string | null
           cover_url?: string | null
@@ -35,7 +33,6 @@ export interface Database {
         Update: {
           id?: string
           google_books_id?: string | null
-          open_library_id?: string | null
           title?: string
           author?: string | null
           cover_url?: string | null
