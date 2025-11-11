@@ -88,21 +88,29 @@ export async function getAIRecommendations(
         recommendations.push({
           title: book.title,
           author: book.author,
-          description: book.description || suggestion.description,
-          matchScore: suggestion.matchScore,
-          matchExplanation: suggestion.matchExplanation,
+          description: book.description || suggestion.description || 'No description available.',
+          matchScore: suggestion.matchScore || 85,
+          matchExplanation: suggestion.matchExplanation || 'Recommended based on your preferences.',
           coverUrl: book.cover_url,
           googleBooksId: book.google_books_id,
           analytics: {
-            pageCount: book.length || suggestion.analytics.pageCount,
-            pacing: suggestion.analytics.pacing,
-            moods: suggestion.analytics.moods,
-            themes: suggestion.analytics.themes,
+            pageCount: book.length || suggestion.analytics?.pageCount || 300,
+            pacing: suggestion.analytics?.pacing || 'medium',
+            moods: suggestion.analytics?.moods || ['engaging'],
+            themes: suggestion.analytics?.themes || [book.genre || 'Fiction'],
           },
         });
       } else {
-        // If Google Books doesn't have it, use AI suggestion
-        recommendations.push(suggestion);
+        // If Google Books doesn't have it, use AI suggestion with defaults
+        recommendations.push({
+          ...suggestion,
+          analytics: {
+            pageCount: suggestion.analytics?.pageCount || 300,
+            pacing: suggestion.analytics?.pacing || 'medium',
+            moods: suggestion.analytics?.moods || ['engaging'],
+            themes: suggestion.analytics?.themes || ['Fiction'],
+          },
+        });
       }
     }
 
@@ -156,10 +164,10 @@ async function getGoogleBooksRecommendations(
         coverUrl: book.cover_url,
         googleBooksId: book.google_books_id,
         analytics: {
-          pageCount: book.length,
+          pageCount: book.length || 300,
           pacing: preferences.pacing,
-          moods: [moodDescription],
-          themes: [genre],
+          moods: moodDescription ? [moodDescription] : ['engaging'],
+          themes: genre ? [genre] : ['Fiction'],
         },
       });
 

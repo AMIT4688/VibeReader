@@ -54,20 +54,26 @@ export function RecommendationCard({ recommendation, onAdded }: RecommendationCa
       if (existingBook) {
         bookId = existingBook.id;
       } else {
+        const genre = recommendation.analytics.themes[0] || 'General';
         const { data: newBook, error: bookError } = await (supabase as any)
           .from('books')
           .insert([{
             google_books_id: googleBooksId,
             title: recommendation.title,
             author: recommendation.author,
-            cover_url: coverUrl,
-            description: recommendation.description,
-            page_count: recommendation.analytics.pageCount || 0,
+            genre: genre,
+            mood_tags: recommendation.analytics.moods || [],
+            length: recommendation.analytics.pageCount || 0,
+            cover_url: coverUrl || '',
+            description: recommendation.description || '',
           }])
           .select('id')
           .single();
 
-        if (bookError) throw bookError;
+        if (bookError) {
+          console.error('Error inserting book:', bookError);
+          throw bookError;
+        }
         bookId = newBook.id;
       }
 
@@ -98,7 +104,8 @@ export function RecommendationCard({ recommendation, onAdded }: RecommendationCa
       }
     } catch (error) {
       console.error('Error adding book:', error);
-      toast.error('Failed to add book');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add book';
+      toast.error(errorMessage);
     } finally {
       setAdding(false);
     }
