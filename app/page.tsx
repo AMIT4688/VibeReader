@@ -174,20 +174,27 @@ export default function Home() {
       if (existingBooks) {
         bookId = (existingBooks as any).id;
       } else {
+        const genre = recommendation.analytics.themes[0] || 'General';
         const { data: newBook, error: insertError } = await (supabase as any)
           .from('books')
           .insert({
             title: recommendation.title,
             author: recommendation.author,
-            cover_url: recommendation.coverUrl || null,
-            description: recommendation.description,
-            page_count: recommendation.analytics.pageCount,
+            genre: genre,
+            mood_tags: recommendation.analytics.moods || [],
+            length: recommendation.analytics.pageCount || 0,
+            cover_url: recommendation.coverUrl || '',
+            description: recommendation.description || '',
+            page_count: recommendation.analytics.pageCount || 0,
             google_books_id: recommendation.googleBooksId || null,
           })
           .select()
           .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Error inserting book:', insertError);
+          throw insertError;
+        }
         bookId = newBook.id;
       }
 
@@ -213,7 +220,10 @@ export default function Home() {
           ai_analytics: recommendation.analytics,
         });
 
-      if (addError) throw addError;
+      if (addError) {
+        console.error('Error adding to user_books:', addError);
+        throw addError;
+      }
 
       toast.success(`${recommendation.title} added to your library!`);
     } catch (error) {
@@ -288,20 +298,27 @@ export default function Home() {
         bookId = (existingBooks as any).id;
       } else {
         // Create new book
+        const genre = book.analytics.themes[0] || 'General';
         const { data: newBook, error: insertError } = await (supabase as any)
           .from('books')
           .insert({
             title: book.title,
             author: book.author,
-            cover_url: book.coverUrl || null,
-            description: book.description,
-            page_count: book.analytics.pageCount,
+            genre: genre,
+            mood_tags: book.analytics.moods || [],
+            length: book.analytics.pageCount || 0,
+            cover_url: book.coverUrl || '',
+            description: book.description || '',
+            page_count: book.analytics.pageCount || 0,
             google_books_id: book.googleBooksId || null,
           })
           .select()
           .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Error inserting vibe book:', insertError);
+          throw insertError;
+        }
         bookId = newBook.id;
       }
 
@@ -355,8 +372,17 @@ export default function Home() {
 
         if (error) throw error;
 
-        toast.success('Account created! Redirecting...');
-        router.push('/library');
+        toast.success('Account created!');
+
+        setTimeout(async () => {
+          await restorePendingVibe();
+          const pendingRecommendation = sessionStorage.getItem('pendingRecommendation');
+          const redirectAfterAuth = sessionStorage.getItem('redirectAfterAuth');
+
+          if (!pendingRecommendation && !redirectAfterAuth) {
+            router.push('/library');
+          }
+        }, 500);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -366,7 +392,16 @@ export default function Home() {
         if (error) throw error;
 
         toast.success('Welcome back!');
-        router.push('/library');
+
+        setTimeout(async () => {
+          await restorePendingVibe();
+          const pendingRecommendation = sessionStorage.getItem('pendingRecommendation');
+          const redirectAfterAuth = sessionStorage.getItem('redirectAfterAuth');
+
+          if (!pendingRecommendation && !redirectAfterAuth) {
+            router.push('/library');
+          }
+        }, 500);
       }
     } catch (error: any) {
       toast.error(error.message || 'Authentication failed');
