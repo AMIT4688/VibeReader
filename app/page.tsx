@@ -25,6 +25,8 @@ export default function Home() {
   const [showVibeModal, setShowVibeModal] = useState(false);
   const [vibeRecommendations, setVibeRecommendations] = useState<AIBookRecommendation[]>([]);
   const [loadingVibe, setLoadingVibe] = useState(false);
+  const [addingBook, setAddingBook] = useState<string | null>(null);
+  const [addedBooks, setAddedBooks] = useState<Set<string>>(new Set());
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -94,9 +96,10 @@ export default function Home() {
     setShowVibeModal(true);
     setLoadingVibe(true);
     setVibeRecommendations([]);
+    setAddedBooks(new Set());
 
     try {
-      // Save vibe preference to database
+      // Save vibe preference to database (optional if user is logged in)
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         await (supabase as any).from('user_vibe_preferences').insert({
@@ -115,6 +118,93 @@ export default function Home() {
       toast.error('Failed to load recommendations. Please try again.');
     } finally {
       setLoadingVibe(false);
+    }
+  }
+
+  async function handleAddVibeBook(book: AIBookRecommendation) {
+    // Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      toast.error('Please sign up or log in to add books to your library!');
+      setShowVibeModal(false);
+      // Scroll to sign up section
+      setTimeout(() => {
+        document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+      return;
+    }
+
+    const bookKey = `${book.title}-${book.author}`;
+    setAddingBook(bookKey);
+
+    try {
+      // Check if book exists in books table
+      let bookId: string;
+      const { data: existingBooks, error: searchError } = await supabase
+        .from('books')
+        .select('id')
+        .eq('title', book.title)
+        .eq('author', book.author)
+        .maybeSingle();
+
+      if (searchError) throw searchError;
+
+      if (existingBooks) {
+        bookId = (existingBooks as any).id;
+      } else {
+        // Create new book
+        const { data: newBook, error: insertError } = await (supabase as any)
+          .from('books')
+          .insert({
+            title: book.title,
+            author: book.author,
+            cover_url: book.coverUrl || null,
+            description: book.description,
+            page_count: book.analytics.pageCount,
+            google_books_id: book.googleBooksId || null,
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        bookId = newBook.id;
+      }
+
+      // Check if user already has this book
+      const { data: existingUserBook } = await (supabase as any)
+        .from('user_books')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('book_id', bookId)
+        .maybeSingle();
+
+      if (existingUserBook) {
+        toast.error('This book is already in your library!');
+        setAddingBook(null);
+        return;
+      }
+
+      // Add to user's library
+      const { error: addError } = await (supabase as any)
+        .from('user_books')
+        .insert({
+          user_id: user.id,
+          book_id: bookId,
+          status: 'want_to_read',
+          progress_percent: 0,
+          ai_analytics: book.analytics,
+        });
+
+      if (addError) throw addError;
+
+      setAddedBooks(prev => new Set(prev).add(bookKey));
+      toast.success(`${book.title} added to your library!`);
+    } catch (error) {
+      console.error('Error adding book:', error);
+      toast.error('Failed to add book. Please try again.');
+    } finally {
+      setAddingBook(null);
     }
   }
 
@@ -753,13 +843,27 @@ export default function Home() {
 
                         <Button
                           size="sm"
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg"
-                          onClick={() => {
-                            setShowVibeModal(false);
-                            router.push('/recommendations');
-                          }}
+                          disabled={addingBook === `${book.title}-${book.author}` || addedBooks.has(`${book.title}-${book.author}`)}
+                          className={`font-bold rounded-lg ${
+                            addedBooks.has(`${book.title}-${book.author}`)
+                              ? 'bg-green-600 hover:bg-green-700 text-white'
+                              : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
+                          }`}
+                          onClick={() => handleAddVibeBook(book)}
                         >
-                          Add to Library
+                          {addingBook === `${book.title}-${book.author}` ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Adding...
+                            </>
+                          ) : addedBooks.has(`${book.title}-${book.author}`) ? (
+                            <>
+                              <Check className="h-4 w-4 mr-2" />
+                              Added!
+                            </>
+                          ) : (
+                            'Add to Library'
+                          )}
                         </Button>
                       </div>
                     </div>
