@@ -21,28 +21,28 @@ export interface AIBookRecommendation {
   };
 }
 
-const CLAUDE_API_KEY = process.env.NEXT_PUBLIC_CLAUDE_API_KEY;
+const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
 
 export async function getAIRecommendations(
   preferences: QuizPreferences
 ): Promise<AIBookRecommendation[]> {
-  if (!CLAUDE_API_KEY || CLAUDE_API_KEY === 'your_claude_api_key_here') {
+  if (!OPENROUTER_API_KEY) {
     return getMockRecommendations(preferences);
   }
 
   try {
     const prompt = buildPrompt(preferences);
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'x-api-key': CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01',
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : '',
+        'X-Title': 'VibeReader',
       },
       body: JSON.stringify({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 2000,
+        model: 'anthropic/claude-3.5-sonnet',
         messages: [
           {
             role: 'user',
@@ -53,11 +53,12 @@ export async function getAIRecommendations(
     });
 
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
-    const content = data.content[0].text;
+    const content = data.choices[0].message.content;
 
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
