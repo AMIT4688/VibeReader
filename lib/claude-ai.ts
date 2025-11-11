@@ -1,3 +1,5 @@
+import { searchBooks, formatGoogleBook } from './google-books';
+
 export interface QuizPreferences {
   genres: string[];
   moodHappySad: number;
@@ -13,6 +15,8 @@ export interface AIBookRecommendation {
   description: string;
   matchScore: number;
   matchExplanation: string;
+  coverUrl?: string;
+  googleBooksId?: string;
   analytics: {
     pageCount: number;
     pacing: 'slow' | 'medium' | 'fast';
@@ -27,10 +31,12 @@ export async function getAIRecommendations(
   preferences: QuizPreferences
 ): Promise<AIBookRecommendation[]> {
   if (!OPENROUTER_API_KEY) {
-    return getMockRecommendations(preferences);
+    console.log('No OpenRouter API key, falling back to Google Books search');
+    return getGoogleBooksRecommendations(preferences);
   }
 
   try {
+    console.log('Getting AI recommendations with preferences:', preferences);
     const prompt = buildPrompt(preferences);
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -54,22 +60,150 @@ export async function getAIRecommendations(
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`OpenRouter API error: ${response.statusText} - ${errorText}`);
+      console.error('OpenRouter API error:', errorText);
+      throw new Error(`OpenRouter API error: ${response.statusText}`);
     }
 
     const data = await response.json();
     const content = data.choices[0].message.content;
+    console.log('AI Response received:', content.substring(0, 200));
 
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       throw new Error('No valid JSON found in response');
     }
 
-    return JSON.parse(jsonMatch[0]);
+    const aiSuggestions = JSON.parse(jsonMatch[0]);
+    console.log('AI suggested', aiSuggestions.length, 'books');
+
+    // Fetch real book data from Google Books for each AI suggestion
+    const recommendations: AIBookRecommendation[] = [];
+
+    for (const suggestion of aiSuggestions.slice(0, 5)) {
+      const searchQuery = `${suggestion.title} ${suggestion.author}`;
+      const books = await searchBooks(searchQuery, 1);
+
+      if (books.length > 0) {
+        const book = formatGoogleBook(books[0]);
+        recommendations.push({
+          title: book.title,
+          author: book.author,
+          description: book.description || suggestion.description,
+          matchScore: suggestion.matchScore,
+          matchExplanation: suggestion.matchExplanation,
+          coverUrl: book.cover_url,
+          googleBooksId: book.google_books_id,
+          analytics: {
+            pageCount: book.length || suggestion.analytics.pageCount,
+            pacing: suggestion.analytics.pacing,
+            moods: suggestion.analytics.moods,
+            themes: suggestion.analytics.themes,
+          },
+        });
+      } else {
+        // If Google Books doesn't have it, use AI suggestion
+        recommendations.push(suggestion);
+      }
+    }
+
+    console.log('Final recommendations count:', recommendations.length);
+    return recommendations;
   } catch (error) {
     console.error('Error getting AI recommendations:', error);
-    return getMockRecommendations(preferences);
+    return getGoogleBooksRecommendations(preferences);
   }
+}
+
+async function getGoogleBooksRecommendations(
+  preferences: QuizPreferences
+): Promise<AIBookRecommendation[]> {
+  console.log('Using Google Books search for recommendations');
+
+  const recommendations: AIBookRecommendation[] = [];
+  const searchedBooks = new Set<string>();
+
+  // Search for books in each preferred genre
+  for (const genre of preferences.genres.slice(0, 3)) {
+    const moodDescription = getMoodDescription(
+      preferences.moodHappySad,
+      preferences.moodHopefulBleak
+    );
+
+    const searchQuery = `subject:${genre} ${moodDescription}`;
+    console.log('Searching Google Books:', searchQuery);
+
+    const books = await searchBooks(searchQuery, 10);
+
+    for (const googleBook of books) {
+      const book = formatGoogleBook(googleBook);
+      const bookKey = `${book.title}-${book.author}`;
+
+      // Avoid duplicates
+      if (searchedBooks.has(bookKey)) continue;
+      searchedBooks.add(bookKey);
+
+      // Filter by length preference
+      if (!matchesLengthPreference(book.length, preferences.length)) continue;
+
+      const matchScore = calculateMatchScore(book, preferences);
+
+      recommendations.push({
+        title: book.title,
+        author: book.author,
+        description: book.description || 'No description available.',
+        matchScore,
+        matchExplanation: generateMatchExplanation(preferences, genre),
+        coverUrl: book.cover_url,
+        googleBooksId: book.google_books_id,
+        analytics: {
+          pageCount: book.length,
+          pacing: preferences.pacing,
+          moods: [moodDescription],
+          themes: [genre],
+        },
+      });
+
+      if (recommendations.length >= 5) break;
+    }
+
+    if (recommendations.length >= 5) break;
+  }
+
+  // Sort by match score
+  recommendations.sort((a, b) => b.matchScore - a.matchScore);
+
+  return recommendations.slice(0, 5);
+}
+
+function matchesLengthPreference(pageCount: number, preference: string): boolean {
+  if (preference === 'short') return pageCount < 250;
+  if (preference === 'medium') return pageCount >= 250 && pageCount <= 400;
+  if (preference === 'long') return pageCount > 400;
+  return true;
+}
+
+function calculateMatchScore(book: any, preferences: QuizPreferences): number {
+  let score = 70;
+
+  // Bonus for matching genre
+  if (preferences.genres.some(g => book.genre?.includes(g))) {
+    score += 15;
+  }
+
+  // Bonus for length match
+  if (matchesLengthPreference(book.length, preferences.length)) {
+    score += 10;
+  }
+
+  // Random variation
+  score += Math.floor(Math.random() * 10);
+
+  return Math.min(100, score);
+}
+
+function generateMatchExplanation(preferences: QuizPreferences, genre: string): string {
+  const focusType = preferences.focus > 50 ? 'plot-driven' : 'character-driven';
+  return `This ${genre} book matches your preference for ${focusType} stories with ${preferences.pacing} pacing and ${preferences.length} length.`;
 }
 
 function buildPrompt(preferences: QuizPreferences): string {

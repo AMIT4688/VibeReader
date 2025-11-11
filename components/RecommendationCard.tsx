@@ -107,14 +107,23 @@ export function RecommendationCard({ recommendation, onAdded }: RecommendationCa
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-4">
+          {recommendation.coverUrl && (
+            <img
+              src={recommendation.coverUrl}
+              alt={recommendation.title}
+              className="w-24 h-32 object-cover rounded shadow-md"
+            />
+          )}
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg line-clamp-2">{recommendation.title}</CardTitle>
+            <div className="flex items-start justify-between gap-3">
+              <CardTitle className="text-lg line-clamp-2">{recommendation.title}</CardTitle>
+              <Badge variant="secondary" className="text-accent font-semibold text-base shrink-0">
+                {recommendation.matchScore}% Match
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground mt-1">{recommendation.author}</p>
           </div>
-          <Badge variant="secondary" className="text-accent font-semibold text-base shrink-0">
-            {recommendation.matchScore}% Match
-          </Badge>
         </div>
       </CardHeader>
 
