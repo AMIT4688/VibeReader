@@ -114,6 +114,12 @@ export default function ReadBookClient() {
         }
 
         bookId = searchData.items[0].id;
+
+        // Update book in database with found google_books_id
+        await (supabase as any)
+          .from('books')
+          .update({ google_books_id: bookId })
+          .eq('id', bookData.book.id);
       }
 
       // Get detailed book information
@@ -138,74 +144,27 @@ export default function ReadBookClient() {
       };
 
       setGoogleBooksInfo(info);
+      setCheckingAvailability(false);
 
-      // Try to load the viewer if embeddable
-      if (info.embeddable && info.bookId) {
-        loadGoogleBooksViewer(info.bookId);
+      // Check if book can be embedded (using modern iframe approach)
+      const canEmbed = info.embeddable && info.viewability !== 'NO_PAGES';
+
+      if (canEmbed) {
+        // Viewer will load via iframe
+        setViewerLoaded(true);
+        setViewerError(null);
       } else {
         setViewerError(
           info.viewability === 'NO_PAGES'
             ? 'This book is not available for preview due to publisher restrictions.'
             : 'Limited preview available. Full content cannot be displayed.'
         );
-        setCheckingAvailability(false);
       }
     } catch (error: any) {
       console.error('Error checking Google Books availability:', error);
       setViewerError(error.message || 'Unable to load book from Google Books');
       setCheckingAvailability(false);
     }
-  }
-
-  function loadGoogleBooksViewer(bookId: string) {
-    // Check if script already loaded
-    if ((window as any).google?.books) {
-      initializeViewer(bookId);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://www.google.com/books/jsapi.js';
-    script.async = true;
-    script.onload = () => {
-      initializeViewer(bookId);
-    };
-    script.onerror = () => {
-      setViewerError('Failed to load Google Books viewer library');
-      setCheckingAvailability(false);
-    };
-    document.body.appendChild(script);
-  }
-
-  function initializeViewer(bookId: string) {
-    if (!(window as any).google) {
-      setViewerError('Google Books library not available');
-      setCheckingAvailability(false);
-      return;
-    }
-
-    const google = (window as any).google;
-    google.books.load();
-
-    google.books.setOnLoadCallback(() => {
-      const viewerElement = document.getElementById('viewerCanvas');
-      if (!viewerElement) {
-        setViewerError('Viewer container not found');
-        setCheckingAvailability(false);
-        return;
-      }
-
-      const viewer = new google.books.DefaultViewer(viewerElement);
-      viewer.load(bookId, () => {
-        setViewerLoaded(true);
-        setCheckingAvailability(false);
-        setViewerError(null);
-      }, (error: any) => {
-        console.error('Viewer load error:', error);
-        setViewerError('This book cannot be displayed in the viewer. It may have limited preview or restricted access.');
-        setCheckingAvailability(false);
-      });
-    });
   }
 
   async function updateProgress(newProgress: number) {
@@ -364,26 +323,50 @@ export default function ReadBookClient() {
                       "{bookData.book.title}" has limited availability on Google Books due to copyright restrictions.
                       Most recent bestsellers and popular books have restricted access.
                     </p>
-                    <p>
+                    <p className="mb-4">
                       You can still track your reading progress here and access the book through other sources.
                     </p>
+
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                      <p className="text-blue-800 font-medium mb-2">💡 Books That Usually Work:</p>
+                      <ul className="text-blue-700 text-xs space-y-1 ml-4 list-disc">
+                        <li>Classic literature (Pride and Prejudice, Moby Dick, The Great Gatsby)</li>
+                        <li>Public domain books (anything published before 1928)</li>
+                        <li>Books with full preview enabled by the publisher</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Show viewer or loading state */}
-            {!viewerError && (
-              <div id="viewerCanvas" style={{ minHeight: '600px', width: '100%' }}>
-                {!viewerLoaded && !checkingAvailability && (
-                  <div className="flex flex-col items-center justify-center p-12 text-center" style={{ minHeight: '600px' }}>
-                    <BookOpen className="h-16 w-16 text-muted-foreground mb-4 opacity-50" />
-                    <h3 className="text-xl font-semibold mb-2">Initializing Book Viewer...</h3>
-                    <p className="text-muted-foreground max-w-md">
-                      Please wait while we load the book content.
-                    </p>
-                  </div>
-                )}
+            {/* Show iframe viewer for embeddable books */}
+            {!viewerError && viewerLoaded && googleBooksInfo?.bookId && (
+              <div className="relative w-full" style={{ height: '800px' }}>
+                <iframe
+                  src={`https://books.google.com/books?id=${googleBooksInfo.bookId}&lpg=PP1&pg=PP1&output=embed`}
+                  className="absolute top-0 left-0 w-full h-full border-0"
+                  title={`${bookData.book.title} - Book Viewer`}
+                  allowFullScreen
+                  onLoad={() => {
+                    console.log('Book viewer loaded successfully');
+                  }}
+                  onError={() => {
+                    setViewerError('Failed to load book viewer. The book may not be available for preview.');
+                    setViewerLoaded(false);
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Show loading state */}
+            {!viewerError && !viewerLoaded && !checkingAvailability && (
+              <div className="flex flex-col items-center justify-center p-12 text-center" style={{ minHeight: '600px' }}>
+                <BookOpen className="h-16 w-16 text-muted-foreground mb-4 opacity-50" />
+                <h3 className="text-xl font-semibold mb-2">Initializing Book Viewer...</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Please wait while we load the book content.
+                </p>
               </div>
             )}
           </CardContent>
