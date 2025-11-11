@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, type Book, type UserBook, type BookStatus } from '@/lib/db';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Navigation } from '@/components/Navigation';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, BookOpen, Clock, CheckCircle2 } from 'lucide-react';
 import { AddBookModal } from '@/components/AddBookModal';
 import { BookCard } from '@/components/BookCard';
 import { toast } from 'sonner';
@@ -158,99 +159,154 @@ export default function LibraryPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6 flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-white">
+        <Navigation />
+        <div className="pt-16 flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-[#0071E3]" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold text-primary">My Library</h1>
-        <Button size="lg" className="gap-2" onClick={() => setShowAddBook(true)}>
-          <Plus className="h-5 w-5" />
-          Add Book
-        </Button>
+    <div className="min-h-screen bg-white">
+      <Navigation />
+
+      <div className="pt-16">
+        <div className="max-w-[1400px] mx-auto px-6 py-16">
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-[#1D1D1F] mb-3">
+                My Library
+              </h1>
+              <p className="text-lg text-[#86868B]">
+                {books.length} {books.length === 1 ? 'book' : 'books'} in your collection
+              </p>
+            </div>
+            <Button
+              size="lg"
+              onClick={() => setShowAddBook(true)}
+              className="bg-[#0071E3] hover:bg-[#0077ED] text-white px-6 py-6 text-base rounded-xl transition-all hover:scale-105"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Add Book
+            </Button>
+          </div>
+
+          <div className="space-y-16">
+            <section>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="h-10 w-10 rounded-full bg-[#0071E3]/10 flex items-center justify-center">
+                  <BookOpen className="h-5 w-5 text-[#0071E3]" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-[#1D1D1F]">Currently Reading</h2>
+                  <p className="text-sm text-[#86868B]">{currentlyReading.length} {currentlyReading.length === 1 ? 'book' : 'books'}</p>
+                </div>
+              </div>
+
+              {currentlyReading.length === 0 ? (
+                <Card className="border-0 bg-[#F5F5F7] rounded-2xl">
+                  <CardContent className="p-12 text-center">
+                    <BookOpen className="h-16 w-16 text-[#86868B] mx-auto mb-4 opacity-50" />
+                    <p className="text-lg text-[#86868B]">No books currently reading.</p>
+                    <p className="text-sm text-[#86868B] mt-2">Start reading by moving a book from your wishlist.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <ScrollArea className="w-full">
+                  <div className="flex gap-6 pb-4">
+                    {currentlyReading.map(({ book, userBook }) => (
+                      <BookCard
+                        key={userBook.id}
+                        book={book}
+                        userBook={userBook}
+                        onMove={handleMoveBook}
+                        onDelete={handleDeleteBook}
+                        onUpdateProgress={handleUpdateProgress}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </section>
+
+            <section>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="h-10 w-10 rounded-full bg-[#34C759]/10 flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-[#34C759]" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-[#1D1D1F]">Want to Read</h2>
+                  <p className="text-sm text-[#86868B]">{wantToRead.length} {wantToRead.length === 1 ? 'book' : 'books'}</p>
+                </div>
+              </div>
+
+              {wantToRead.length === 0 ? (
+                <Card className="border-0 bg-[#F5F5F7] rounded-2xl">
+                  <CardContent className="p-12 text-center">
+                    <Clock className="h-16 w-16 text-[#86868B] mx-auto mb-4 opacity-50" />
+                    <p className="text-lg text-[#86868B]">No books in your wishlist.</p>
+                    <p className="text-sm text-[#86868B] mt-2">Add books you want to read to build your collection.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <ScrollArea className="w-full">
+                  <div className="flex gap-6 pb-4">
+                    {wantToRead.map(({ book, userBook }) => (
+                      <BookCard
+                        key={userBook.id}
+                        book={book}
+                        userBook={userBook}
+                        onMove={handleMoveBook}
+                        onDelete={handleDeleteBook}
+                        onUpdateProgress={handleUpdateProgress}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </section>
+
+            <section>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="h-10 w-10 rounded-full bg-[#5856D6]/10 flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-[#5856D6]" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-[#1D1D1F]">Finished</h2>
+                  <p className="text-sm text-[#86868B]">{finished.length} {finished.length === 1 ? 'book' : 'books'}</p>
+                </div>
+              </div>
+
+              {finished.length === 0 ? (
+                <Card className="border-0 bg-[#F5F5F7] rounded-2xl">
+                  <CardContent className="p-12 text-center">
+                    <CheckCircle2 className="h-16 w-16 text-[#86868B] mx-auto mb-4 opacity-50" />
+                    <p className="text-lg text-[#86868B]">No finished books yet.</p>
+                    <p className="text-sm text-[#86868B] mt-2">Complete a book to see your achievements.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <ScrollArea className="w-full">
+                  <div className="flex gap-6 pb-4">
+                    {finished.map(({ book, userBook }) => (
+                      <BookCard
+                        key={userBook.id}
+                        book={book}
+                        userBook={userBook}
+                        onMove={handleMoveBook}
+                        onDelete={handleDeleteBook}
+                        onUpdateProgress={handleUpdateProgress}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </section>
+          </div>
+        </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Currently Reading</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {currentlyReading.length === 0 ? (
-            <p className="text-muted-foreground">No books currently reading.</p>
-          ) : (
-            <ScrollArea className="w-full">
-              <div className="flex gap-4 pb-4">
-                {currentlyReading.map(({ book, userBook }) => (
-                  <BookCard
-                    key={userBook.id}
-                    book={book}
-                    userBook={userBook}
-                    onMove={handleMoveBook}
-                    onDelete={handleDeleteBook}
-                    onUpdateProgress={handleUpdateProgress}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Want to Read</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {wantToRead.length === 0 ? (
-            <p className="text-muted-foreground">No books in your wishlist.</p>
-          ) : (
-            <ScrollArea className="w-full">
-              <div className="flex gap-4 pb-4">
-                {wantToRead.map(({ book, userBook }) => (
-                  <BookCard
-                    key={userBook.id}
-                    book={book}
-                    userBook={userBook}
-                    onMove={handleMoveBook}
-                    onDelete={handleDeleteBook}
-                    onUpdateProgress={handleUpdateProgress}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Finished</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {finished.length === 0 ? (
-            <p className="text-muted-foreground">No finished books yet.</p>
-          ) : (
-            <ScrollArea className="w-full">
-              <div className="flex gap-4 pb-4">
-                {finished.map(({ book, userBook }) => (
-                  <BookCard
-                    key={userBook.id}
-                    book={book}
-                    userBook={userBook}
-                    onMove={handleMoveBook}
-                    onDelete={handleDeleteBook}
-                    onUpdateProgress={handleUpdateProgress}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
-          )}
-        </CardContent>
-      </Card>
 
       <AddBookModal
         open={showAddBook}
