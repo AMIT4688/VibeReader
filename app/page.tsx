@@ -6,7 +6,7 @@ import { supabase } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { BookOpen, Sparkles, TrendingUp, Zap, Users, Star, Search, ShoppingBag, Menu, X, ChevronRight, ArrowRight, Check, XCircle, Loader2, MessageSquare, Brain, Rocket, CheckCircle2, Clock, Heart } from 'lucide-react';
+import { BookOpen, Sparkles, TrendingUp, Zap, Users, Star, Search, ShoppingBag, Menu, X, ChevronRight, ArrowRight, Check, XCircle, Loader2, MessageSquare, Brain, Rocket, CheckCircle2, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { getVibeBasedRecommendations, type AIBookRecommendation } from '@/lib/claude-ai';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -622,134 +622,102 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-              Simple, Transparent Pricing
+              Completely Free Forever!
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Start free and upgrade when you're ready for more
+              All features included, no credit card required, no hidden fees
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Free Plan */}
-            <div className="bg-gray-50 rounded-3xl p-8 border-4 border-gray-200 hover:border-purple-300 transition-all hover:shadow-xl">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-black text-gray-900 mb-2">Free</h3>
-                <div className="text-5xl font-black text-gray-900 mb-2">$0</div>
-                <p className="text-gray-600">Forever free</p>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">5 AI recommendations per month</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Basic reading tracker</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Personal library</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Community access</span>
-                </li>
-              </ul>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full border-2 border-gray-300 text-gray-900 hover:bg-gray-100 py-6 text-lg font-bold rounded-xl"
-                onClick={() => document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Get Started
-              </Button>
-            </div>
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-600 rounded-3xl p-1 shadow-2xl">
+              <div className="bg-white rounded-3xl p-10">
+                <div className="text-center mb-8">
+                  <div className="inline-block bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 text-white px-6 py-2 rounded-full font-black text-sm mb-6 shadow-lg">
+                    100% FREE
+                  </div>
+                  <h3 className="text-3xl font-black text-gray-900 mb-2">VibeReader</h3>
+                  <div className="text-7xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent mb-2">
+                    $0
+                  </div>
+                  <p className="text-xl text-gray-600 font-semibold">Forever and always</p>
+                </div>
 
-            {/* Pro Plan */}
-            <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-600 rounded-3xl p-8 border-4 border-white shadow-2xl transform scale-105 relative">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-6 py-2 rounded-full font-black text-sm shadow-lg">
-                MOST POPULAR
-              </div>
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-black text-white mb-2">Pro</h3>
-                <div className="text-5xl font-black text-white mb-2">$9</div>
-                <p className="text-white/90">per month</p>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <span className="text-white font-semibold">Unlimited AI recommendations</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <span className="text-white font-semibold">Advanced reading analytics</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <span className="text-white font-semibold">Personalized reading goals</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <span className="text-white font-semibold">Priority support</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-white flex-shrink-0 mt-0.5" />
-                  <span className="text-white font-semibold">Export reading history</span>
-                </li>
-              </ul>
-              <Button
-                size="lg"
-                className="w-full bg-white text-purple-600 hover:bg-gray-50 py-6 text-lg font-bold rounded-xl shadow-lg"
-                onClick={() => document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Start Free Trial
-              </Button>
-            </div>
+                <div className="space-y-4 mb-10">
+                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                    <CheckCircle2 className="h-7 w-7 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-gray-900 text-lg">Unlimited AI Recommendations</p>
+                      <p className="text-gray-600 text-sm">Get personalized book suggestions anytime</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-pink-50 to-orange-50 rounded-xl">
+                    <CheckCircle2 className="h-7 w-7 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-gray-900 text-lg">Smart Reading Tracker</p>
+                      <p className="text-gray-600 text-sm">Track your progress and reading stats</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-orange-50 to-purple-50 rounded-xl">
+                    <CheckCircle2 className="h-7 w-7 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-gray-900 text-lg">Personal Library</p>
+                      <p className="text-gray-600 text-sm">Organize all your books in one place</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                    <CheckCircle2 className="h-7 w-7 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-gray-900 text-lg">Vibe-Based Discovery</p>
+                      <p className="text-gray-600 text-sm">Find books that match your current mood</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-pink-50 to-orange-50 rounded-xl">
+                    <CheckCircle2 className="h-7 w-7 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-gray-900 text-lg">Reading Analytics</p>
+                      <p className="text-gray-600 text-sm">Get insights into your reading habits</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-orange-50 to-purple-50 rounded-xl">
+                    <CheckCircle2 className="h-7 w-7 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-gray-900 text-lg">No Ads Ever</p>
+                      <p className="text-gray-600 text-sm">Pure reading experience, no interruptions</p>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Lifetime Plan */}
-            <div className="bg-gray-900 rounded-3xl p-8 border-4 border-gray-800 hover:border-purple-600 transition-all hover:shadow-xl">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-black text-white mb-2">Lifetime</h3>
-                <div className="text-5xl font-black text-white mb-2">$99</div>
-                <p className="text-gray-400">one-time payment</p>
+                <Button
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white py-8 text-xl font-black rounded-2xl shadow-xl transition-all hover:scale-105"
+                  onClick={() => document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Start Reading for Free!
+                </Button>
+
+                <p className="text-center text-gray-500 text-sm mt-6">
+                  No credit card required • Sign up in 30 seconds
+                </p>
               </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-purple-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300 font-semibold">Everything in Pro</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-purple-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300 font-semibold">Lifetime updates</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-purple-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300 font-semibold">Early access to features</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-purple-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300 font-semibold">VIP community badge</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Heart className="h-6 w-6 text-red-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300 font-semibold">Support indie development</span>
-                </li>
-              </ul>
-              <Button
-                size="lg"
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg font-bold rounded-xl shadow-lg"
-                onClick={() => document.getElementById('get-started')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Get Lifetime Access
-              </Button>
             </div>
           </div>
 
-          <div className="text-center mt-12">
-            <p className="text-gray-600 text-lg">
-              <Clock className="inline h-5 w-5 mr-2" />
-              All plans include a 14-day money-back guarantee
-            </p>
+          <div className="text-center mt-16">
+            <div className="inline-flex items-center gap-8 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 px-12 py-6 rounded-full border-2 border-purple-200">
+              <div className="flex items-center gap-2">
+                <Heart className="h-6 w-6 text-red-500 fill-red-500" />
+                <span className="font-bold text-gray-800">Made with love for readers</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-6 w-6 text-purple-600" />
+                <span className="font-bold text-gray-800">Always improving</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="h-6 w-6 text-blue-600" />
+                <span className="font-bold text-gray-800">Community driven</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
