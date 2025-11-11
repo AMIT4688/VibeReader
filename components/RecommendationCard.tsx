@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Check } from 'lucide-react';
+import { Loader2, Plus, Check, Star, BookOpen } from 'lucide-react';
 import { supabase } from '@/lib/db';
-import { searchBooks, formatGoogleBook } from '@/lib/google-books';
+import { searchBooks } from '@/lib/google-books';
 import type { AIBookRecommendation } from '@/lib/claude-ai';
 import { toast } from 'sonner';
 
@@ -111,80 +111,135 @@ export function RecommendationCard({ recommendation, onAdded }: RecommendationCa
     }
   }
 
+  const getMatchColor = (score: number) => {
+    if (score >= 90) return 'from-green-500 to-emerald-600';
+    if (score >= 80) return 'from-blue-500 to-cyan-600';
+    if (score >= 70) return 'from-purple-500 to-pink-600';
+    return 'from-orange-500 to-amber-600';
+  };
+
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-3">
-        <div className="flex items-start gap-4">
+    <Card className="border-0 bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-1">
+      <div className={`h-2 bg-gradient-to-r ${getMatchColor(recommendation.matchScore)}`}></div>
+
+      <CardContent className="p-6">
+        <div className="flex gap-6 mb-6">
           {recommendation.coverUrl && (
-            <img
-              src={recommendation.coverUrl}
-              alt={recommendation.title}
-              className="w-24 h-32 object-cover rounded shadow-md"
-            />
+            <div className="flex-shrink-0">
+              <img
+                src={recommendation.coverUrl}
+                alt={recommendation.title}
+                className="w-32 h-48 object-cover rounded-2xl shadow-lg border-4 border-gray-100"
+              />
+            </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <CardTitle className="text-lg line-clamp-2">{recommendation.title}</CardTitle>
-              <Badge variant="secondary" className="text-accent font-semibold text-base shrink-0">
-                {recommendation.matchScore}% Match
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <h3 className="text-2xl font-black text-gray-800 leading-tight line-clamp-2">
+                {recommendation.title}
+              </h3>
+              <div className={`flex-shrink-0 px-4 py-2 rounded-full bg-gradient-to-r ${getMatchColor(recommendation.matchScore)} text-white font-black text-lg shadow-lg`}>
+                {recommendation.matchScore}%
+              </div>
+            </div>
+            <p className="text-lg font-bold text-gray-600 mb-3">by {recommendation.author}</p>
+
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-5 w-5 ${
+                      i < Math.round(recommendation.matchScore / 20)
+                        ? 'text-yellow-500 fill-yellow-500'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-bold text-gray-600">Perfect Match!</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 border-2 border-purple-200">
+            <p className="text-base text-gray-700 leading-relaxed">{recommendation.description}</p>
+          </div>
+
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-4 border-2 border-blue-200">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                <BookOpen className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-gray-800 mb-1">Why You'll Love This:</p>
+                <p className="text-base text-gray-700">{recommendation.matchExplanation}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-black text-gray-800 mb-3">Book Details:</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-4 py-1.5 text-base font-bold">
+                {recommendation.analytics.pacing} paced
+              </Badge>
+              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 px-4 py-1.5 text-base font-bold">
+                {recommendation.analytics.pageCount} pages
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">{recommendation.author}</p>
+            <div className="flex flex-wrap gap-2">
+              {recommendation.analytics.moods.slice(0, 4).map((mood) => (
+                <Badge
+                  key={mood}
+                  className="bg-yellow-100 text-yellow-800 border-2 border-yellow-300 px-3 py-1 text-sm font-bold"
+                >
+                  {mood}
+                </Badge>
+              ))}
+            </div>
+            {recommendation.analytics.themes.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {recommendation.analytics.themes.slice(0, 3).map((theme) => (
+                  <Badge
+                    key={theme}
+                    className="bg-blue-100 text-blue-800 border-2 border-blue-300 px-3 py-1 text-sm font-bold"
+                  >
+                    {theme}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
+
+          <Button
+            onClick={handleAddToLibrary}
+            disabled={adding || added}
+            className={`w-full py-6 text-lg font-black rounded-2xl shadow-lg transition-all transform hover:scale-105 ${
+              added
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                : 'bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700'
+            }`}
+          >
+            {adding ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Adding to Your Library...
+              </>
+            ) : added ? (
+              <>
+                <Check className="h-5 w-5 mr-2" />
+                Added to Your Library! 🎉
+              </>
+            ) : (
+              <>
+                <Plus className="h-5 w-5 mr-2" />
+                Add This Book to My Library!
+              </>
+            )}
+          </Button>
         </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        <p className="text-sm leading-relaxed">{recommendation.description}</p>
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Why this matches:</p>
-          <p className="text-sm text-muted-foreground italic">{recommendation.matchExplanation}</p>
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Book Vibe:</p>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{recommendation.analytics.pacing} paced</Badge>
-            <Badge variant="outline">{recommendation.analytics.pageCount} pages</Badge>
-            {recommendation.analytics.moods.slice(0, 3).map((mood) => (
-              <Badge key={mood} variant="secondary">
-                {mood}
-              </Badge>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {recommendation.analytics.themes.slice(0, 3).map((theme) => (
-              <Badge key={theme} variant="outline" className="text-xs">
-                {theme}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        <Button
-          onClick={handleAddToLibrary}
-          disabled={adding || added}
-          className="w-full"
-          variant={added ? 'secondary' : 'default'}
-        >
-          {adding ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Adding...
-            </>
-          ) : added ? (
-            <>
-              <Check className="h-4 w-4 mr-2" />
-              Added to Library
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4 mr-2" />
-              Add to Want to Read
-            </>
-          )}
-        </Button>
       </CardContent>
     </Card>
   );

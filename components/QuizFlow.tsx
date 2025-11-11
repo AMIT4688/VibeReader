@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, Star, Smile, Frown, Zap, BookOpen } from 'lucide-react';
 import type { QuizPreferences } from '@/lib/claude-ai';
 
 interface QuizFlowProps {
@@ -29,6 +29,21 @@ const GENRES = [
   'Literary Fiction',
   'Horror',
 ];
+
+const GENRE_EMOJIS: Record<string, string> = {
+  'Fiction': '📖',
+  'Non-Fiction': '📚',
+  'Mystery': '🔍',
+  'Thriller': '😱',
+  'Romance': '💕',
+  'Science Fiction': '🚀',
+  'Fantasy': '🧙',
+  'Biography': '👤',
+  'History': '🏛️',
+  'Self-Help': '💪',
+  'Literary Fiction': '✨',
+  'Horror': '👻',
+};
 
 export function QuizFlow({ onComplete, loading = false }: QuizFlowProps) {
   const [step, setStep] = useState(1);
@@ -69,98 +84,128 @@ export function QuizFlow({ onComplete, loading = false }: QuizFlowProps) {
   }
 
   return (
-    <Card className="max-w-3xl mx-auto border-0 bg-white rounded-3xl shadow-sm">
+    <Card className="max-w-4xl mx-auto border-0 bg-white rounded-3xl shadow-2xl">
       <CardContent className="p-8 md:p-12">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm font-medium text-[#86868B]">Question {step} of 5</span>
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-black text-xl shadow-lg">
+                {step}
+              </div>
+              <span className="text-lg font-bold text-gray-700">Question {step} of 5</span>
+            </div>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
-                  className={`h-1.5 w-12 rounded-full transition-all duration-300 ${
-                    i <= step ? 'bg-[#0071E3]' : 'bg-[#E8E8ED]'
+                  className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                    i <= step
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 scale-125'
+                      : 'bg-gray-300'
                   }`}
                 />
               ))}
             </div>
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-[#1D1D1F] mb-3">
-            {step === 1 && 'What genres do you enjoy?'}
-            {step === 2 && 'What mood are you looking for?'}
-            {step === 3 && 'What pacing do you prefer?'}
-            {step === 4 && 'How long should the book be?'}
-            {step === 5 && 'What kind of story appeals to you?'}
-          </h2>
+          <div className="space-y-4">
+            <h2 className="text-4xl md:text-5xl font-black text-gray-800 leading-tight">
+              {step === 1 && '📚 What kinds of books do you like?'}
+              {step === 2 && '😊 How do you want to feel?'}
+              {step === 3 && '⚡ How fast should the story move?'}
+              {step === 4 && '📏 How long should the book be?'}
+              {step === 5 && '🎭 What kind of story do you like?'}
+            </h2>
 
-          <p className="text-lg text-[#86868B]">
-            {step === 1 && 'Select all genres that interest you'}
-            {step === 2 && 'Adjust the sliders to match your preferred mood'}
-            {step === 3 && 'Choose how fast you want the story to move'}
-            {step === 4 && 'Select your preferred book length'}
-            {step === 5 && 'Do you prefer character-driven or plot-driven stories?'}
-          </p>
+            <p className="text-xl text-gray-600 font-semibold">
+              {step === 1 && 'Pick all the types you enjoy reading!'}
+              {step === 2 && 'Move the sliders to show what mood you want'}
+              {step === 3 && 'Choose your perfect reading speed'}
+              {step === 4 && 'Pick your favorite book size'}
+              {step === 5 && 'Do you like books about people or action?'}
+            </p>
+          </div>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-10">
           {step === 1 && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {GENRES.map((genre) => (
                 <label
                   key={genre}
-                  className={`flex items-center space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex items-center gap-3 p-5 rounded-2xl border-4 cursor-pointer transition-all transform hover:scale-105 ${
                     preferences.genres?.includes(genre)
-                      ? 'border-[#0071E3] bg-[#0071E3]/5'
-                      : 'border-[#E8E8ED] hover:border-[#0071E3]/50'
+                      ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg'
+                      : 'border-gray-200 hover:border-purple-300 bg-white'
                   }`}
                 >
-                  <Checkbox
-                    id={genre}
-                    checked={preferences.genres?.includes(genre)}
-                    onCheckedChange={() => handleGenreToggle(genre)}
-                    className="data-[state=checked]:bg-[#0071E3] data-[state=checked]:border-[#0071E3]"
-                  />
-                  <span className="font-medium text-[#1D1D1F]">{genre}</span>
+                  <div className="flex-shrink-0">
+                    <Checkbox
+                      id={genre}
+                      checked={preferences.genres?.includes(genre)}
+                      onCheckedChange={() => handleGenreToggle(genre)}
+                      className="w-6 h-6 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{GENRE_EMOJIS[genre]}</span>
+                    <span className="font-bold text-gray-800">{genre}</span>
+                  </div>
                 </label>
               ))}
             </div>
           )}
 
           {step === 2 && (
-            <div className="space-y-10">
-              <div className="space-y-4">
-                <div className="flex justify-between text-base font-medium">
-                  <span className="text-[#1D1D1F]">Happy</span>
-                  <span className="text-[#0071E3]">{preferences.moodHappySad}</span>
-                  <span className="text-[#1D1D1F]">Sad</span>
+            <div className="space-y-12">
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-6 border-4 border-yellow-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-3">
+                      <Smile className="h-8 w-8 text-yellow-500" />
+                      <span className="text-xl font-bold text-gray-800">Happy</span>
+                    </div>
+                    <div className="text-3xl font-black text-purple-600">{preferences.moodHappySad}</div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl font-bold text-gray-800">Sad</span>
+                      <Frown className="h-8 w-8 text-blue-500" />
+                    </div>
+                  </div>
+                  <Slider
+                    value={[preferences.moodHappySad || 50]}
+                    onValueChange={([value]) =>
+                      setPreferences({ ...preferences, moodHappySad: value })
+                    }
+                    max={100}
+                    step={1}
+                    className="py-3"
+                  />
                 </div>
-                <Slider
-                  value={[preferences.moodHappySad || 50]}
-                  onValueChange={([value]) =>
-                    setPreferences({ ...preferences, moodHappySad: value })
-                  }
-                  max={100}
-                  step={1}
-                  className="py-2"
-                />
               </div>
 
-              <div className="space-y-4">
-                <div className="flex justify-between text-base font-medium">
-                  <span className="text-[#1D1D1F]">Hopeful</span>
-                  <span className="text-[#0071E3]">{preferences.moodHopefulBleak}</span>
-                  <span className="text-[#1D1D1F]">Bleak</span>
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-6 border-4 border-green-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-3">
+                      <Star className="h-8 w-8 text-green-500 fill-green-500" />
+                      <span className="text-xl font-bold text-gray-800">Hopeful</span>
+                    </div>
+                    <div className="text-3xl font-black text-purple-600">{preferences.moodHopefulBleak}</div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl font-bold text-gray-800">Dark</span>
+                      <Star className="h-8 w-8 text-purple-500" />
+                    </div>
+                  </div>
+                  <Slider
+                    value={[preferences.moodHopefulBleak || 50]}
+                    onValueChange={([value]) =>
+                      setPreferences({ ...preferences, moodHopefulBleak: value })
+                    }
+                    max={100}
+                    step={1}
+                    className="py-3"
+                  />
                 </div>
-                <Slider
-                  value={[preferences.moodHopefulBleak || 50]}
-                  onValueChange={([value]) =>
-                    setPreferences({ ...preferences, moodHopefulBleak: value })
-                  }
-                  max={100}
-                  step={1}
-                  className="py-2"
-                />
               </div>
             </div>
           )}
@@ -174,49 +219,55 @@ export function QuizFlow({ onComplete, loading = false }: QuizFlowProps) {
               className="space-y-4"
             >
               <label
-                className={`flex items-start space-x-4 p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-start gap-4 p-6 rounded-2xl border-4 cursor-pointer transition-all transform hover:scale-105 ${
                   preferences.pacing === 'slow'
-                    ? 'border-[#0071E3] bg-[#0071E3]/5'
-                    : 'border-[#E8E8ED] hover:border-[#0071E3]/50'
+                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-lg'
+                    : 'border-gray-200 hover:border-blue-300 bg-white'
                 }`}
               >
-                <RadioGroupItem value="slow" id="slow" className="mt-1" />
+                <RadioGroupItem value="slow" id="slow" className="mt-1 w-6 h-6" />
                 <div>
-                  <div className="font-semibold text-lg text-[#1D1D1F] mb-1">Slow</div>
-                  <div className="text-[#86868B]">
-                    Detailed descriptions, character development
+                  <div className="font-black text-2xl text-gray-800 mb-2 flex items-center gap-2">
+                    🐢 Slow & Steady
+                  </div>
+                  <div className="text-lg text-gray-600">
+                    Lots of details and getting to know characters really well
                   </div>
                 </div>
               </label>
 
               <label
-                className={`flex items-start space-x-4 p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-start gap-4 p-6 rounded-2xl border-4 cursor-pointer transition-all transform hover:scale-105 ${
                   preferences.pacing === 'medium'
-                    ? 'border-[#0071E3] bg-[#0071E3]/5'
-                    : 'border-[#E8E8ED] hover:border-[#0071E3]/50'
+                    ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 shadow-lg'
+                    : 'border-gray-200 hover:border-green-300 bg-white'
                 }`}
               >
-                <RadioGroupItem value="medium" id="medium" className="mt-1" />
+                <RadioGroupItem value="medium" id="medium" className="mt-1 w-6 h-6" />
                 <div>
-                  <div className="font-semibold text-lg text-[#1D1D1F] mb-1">Medium</div>
-                  <div className="text-[#86868B]">
-                    Balanced between action and reflection
+                  <div className="font-black text-2xl text-gray-800 mb-2 flex items-center gap-2">
+                    🚶 Just Right
+                  </div>
+                  <div className="text-lg text-gray-600">
+                    A good mix of action and character moments
                   </div>
                 </div>
               </label>
 
               <label
-                className={`flex items-start space-x-4 p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-start gap-4 p-6 rounded-2xl border-4 cursor-pointer transition-all transform hover:scale-105 ${
                   preferences.pacing === 'fast'
-                    ? 'border-[#0071E3] bg-[#0071E3]/5'
-                    : 'border-[#E8E8ED] hover:border-[#0071E3]/50'
+                    ? 'border-red-500 bg-gradient-to-br from-red-50 to-orange-50 shadow-lg'
+                    : 'border-gray-200 hover:border-red-300 bg-white'
                 }`}
               >
-                <RadioGroupItem value="fast" id="fast" className="mt-1" />
+                <RadioGroupItem value="fast" id="fast" className="mt-1 w-6 h-6" />
                 <div>
-                  <div className="font-semibold text-lg text-[#1D1D1F] mb-1">Fast</div>
-                  <div className="text-[#86868B]">
-                    Action-packed, page-turner
+                  <div className="font-black text-2xl text-gray-800 mb-2 flex items-center gap-2">
+                    🚀 Super Fast!
+                  </div>
+                  <div className="text-lg text-gray-600">
+                    Lots of action and excitement on every page!
                   </div>
                 </div>
               </label>
@@ -232,56 +283,68 @@ export function QuizFlow({ onComplete, loading = false }: QuizFlowProps) {
               className="space-y-4"
             >
               <label
-                className={`flex items-start space-x-4 p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-start gap-4 p-6 rounded-2xl border-4 cursor-pointer transition-all transform hover:scale-105 ${
                   preferences.length === 'short'
-                    ? 'border-[#0071E3] bg-[#0071E3]/5'
-                    : 'border-[#E8E8ED] hover:border-[#0071E3]/50'
+                    ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg'
+                    : 'border-gray-200 hover:border-purple-300 bg-white'
                 }`}
               >
-                <RadioGroupItem value="short" id="short" className="mt-1" />
+                <RadioGroupItem value="short" id="short" className="mt-1 w-6 h-6" />
                 <div>
-                  <div className="font-semibold text-lg text-[#1D1D1F] mb-1">Short</div>
-                  <div className="text-[#86868B]">Under 250 pages</div>
+                  <div className="font-black text-2xl text-gray-800 mb-2 flex items-center gap-2">
+                    📕 Quick Read
+                  </div>
+                  <div className="text-lg text-gray-600">Under 250 pages - finish it fast!</div>
                 </div>
               </label>
 
               <label
-                className={`flex items-start space-x-4 p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-start gap-4 p-6 rounded-2xl border-4 cursor-pointer transition-all transform hover:scale-105 ${
                   preferences.length === 'medium'
-                    ? 'border-[#0071E3] bg-[#0071E3]/5'
-                    : 'border-[#E8E8ED] hover:border-[#0071E3]/50'
+                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg'
+                    : 'border-gray-200 hover:border-blue-300 bg-white'
                 }`}
               >
-                <RadioGroupItem value="medium" id="medium-length" className="mt-1" />
+                <RadioGroupItem value="medium" id="medium-length" className="mt-1 w-6 h-6" />
                 <div>
-                  <div className="font-semibold text-lg text-[#1D1D1F] mb-1">Medium</div>
-                  <div className="text-[#86868B]">250-400 pages</div>
+                  <div className="font-black text-2xl text-gray-800 mb-2 flex items-center gap-2">
+                    📗 Medium Size
+                  </div>
+                  <div className="text-lg text-gray-600">250-400 pages - just right!</div>
                 </div>
               </label>
 
               <label
-                className={`flex items-start space-x-4 p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-start gap-4 p-6 rounded-2xl border-4 cursor-pointer transition-all transform hover:scale-105 ${
                   preferences.length === 'long'
-                    ? 'border-[#0071E3] bg-[#0071E3]/5'
-                    : 'border-[#E8E8ED] hover:border-[#0071E3]/50'
+                    ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 shadow-lg'
+                    : 'border-gray-200 hover:border-orange-300 bg-white'
                 }`}
               >
-                <RadioGroupItem value="long" id="long" className="mt-1" />
+                <RadioGroupItem value="long" id="long" className="mt-1 w-6 h-6" />
                 <div>
-                  <div className="font-semibold text-lg text-[#1D1D1F] mb-1">Long</div>
-                  <div className="text-[#86868B]">Over 400 pages</div>
+                  <div className="font-black text-2xl text-gray-800 mb-2 flex items-center gap-2">
+                    📘 Big Adventure
+                  </div>
+                  <div className="text-lg text-gray-600">Over 400 pages - dive deep into the story!</div>
                 </div>
               </label>
             </RadioGroup>
           )}
 
           {step === 5 && (
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex justify-between text-base font-medium">
-                  <span className="text-[#1D1D1F]">Character-Driven</span>
-                  <span className="text-[#0071E3]">{preferences.focus}</span>
-                  <span className="text-[#1D1D1F]">Plot-Driven</span>
+            <div className="space-y-8">
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 border-4 border-indigo-200">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">👥</span>
+                    <span className="text-xl font-bold text-gray-800">About People</span>
+                  </div>
+                  <div className="text-4xl font-black text-purple-600">{preferences.focus}</div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl font-bold text-gray-800">Lots of Action</span>
+                    <span className="text-3xl">💥</span>
+                  </div>
                 </div>
                 <Slider
                   value={[preferences.focus || 50]}
@@ -290,46 +353,53 @@ export function QuizFlow({ onComplete, loading = false }: QuizFlowProps) {
                   }
                   max={100}
                   step={1}
-                  className="py-2"
+                  className="py-3"
                 />
               </div>
-              <div className="p-4 bg-[#F5F5F7] rounded-xl">
-                <p className="text-sm text-[#86868B]">
-                  Character-driven stories focus on internal growth and relationships. Plot-driven
-                  stories emphasize external action and events.
-                </p>
+              <div className="bg-white rounded-2xl p-6 border-4 border-yellow-200 shadow-lg">
+                <div className="flex items-start gap-3">
+                  <BookOpen className="h-8 w-8 text-yellow-500 flex-shrink-0 mt-1" />
+                  <p className="text-lg text-gray-700 font-semibold">
+                    <strong>People-focused books</strong> are about feelings, friendships, and growing up.
+                    <br />
+                    <strong>Action-focused books</strong> have lots of exciting events and adventures!
+                  </p>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex justify-between pt-6">
+        <div className="flex justify-between pt-8 border-t-4 border-gray-100">
           <Button
             variant="outline"
             onClick={handleBack}
             disabled={step === 1 || loading}
-            className="border-[#E8E8ED] text-[#1D1D1F] hover:bg-[#F5F5F7] px-6 py-6 text-base rounded-xl"
+            className="border-4 border-gray-300 text-gray-700 hover:bg-gray-100 bg-white px-8 py-6 text-lg font-bold rounded-full shadow-lg disabled:opacity-50"
           >
-            <ChevronLeft className="h-5 w-5 mr-2" />
+            <ChevronLeft className="h-6 w-6 mr-2" />
             Back
           </Button>
 
           <Button
             onClick={handleNext}
             disabled={!canProceed() || loading}
-            className="bg-[#0071E3] hover:bg-[#0077ED] text-white px-6 py-6 text-base rounded-xl transition-all hover:scale-105"
+            className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-black rounded-full shadow-2xl transition-all hover:scale-105 disabled:opacity-50 border-4 border-white"
           >
             {loading ? (
               <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Getting Recommendations...
+                <Loader2 className="h-6 w-6 mr-2 animate-spin" />
+                Finding Your Books...
               </>
             ) : step === 5 ? (
-              'Get Recommendations'
+              <>
+                <Zap className="h-6 w-6 mr-2" />
+                Show Me Books!
+              </>
             ) : (
               <>
-                Next
-                <ChevronRight className="h-5 w-5 ml-2" />
+                Next Question
+                <ChevronRight className="h-6 w-6 ml-2" />
               </>
             )}
           </Button>

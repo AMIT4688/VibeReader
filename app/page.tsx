@@ -135,18 +135,40 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center pt-11 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F5F5F7] to-white opacity-60" />
-        <div className="max-w-[980px] mx-auto text-center relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 bg-gradient-to-b from-[#1D1D1F] to-[#86868B] bg-clip-text text-transparent">
-            Reading,
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 opacity-60" />
+        <div className="max-w-[1100px] mx-auto text-center relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <div className="inline-block mb-6">
+            <div className="text-6xl mb-4">📚✨</div>
+          </div>
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+            Find Books
             <br />
-            redefined.
+            You'll Love!
           </h1>
-          <p className="text-xl md:text-2xl text-[#86868B] font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-            Discover books that match your vibe. Powered by AI.
+          <p className="text-2xl md:text-3xl font-bold text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
+            No more searching everywhere! Get perfect book picks just for YOU.
             <br />
-            Designed for readers who know what they want.
+            Save time, read more, have fun! 🎉
           </p>
+
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 max-w-4xl mx-auto shadow-2xl border-4 border-purple-200 mb-12">
+            <div className="grid md:grid-cols-2 gap-6 text-left">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-2xl shadow-lg">❌</div>
+                <div>
+                  <h3 className="font-black text-lg text-gray-800 mb-1">The Problem:</h3>
+                  <p className="text-gray-600">Searching for good books takes forever. Too many websites, too confusing, not fun!</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-2xl shadow-lg">✅</div>
+                <div>
+                  <h3 className="font-black text-lg text-gray-800 mb-1">Our Solution:</h3>
+                  <p className="text-gray-600">One place for everything! AI picks books YOU'll love. Easy, fast, and super fun!</p>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button
               size="lg"
@@ -178,44 +200,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Feature Section 1 - Dark */}
+      {/* Feature Section 1 */}
       <section
         id="features"
         data-animate
-        className={`py-32 px-6 bg-[#000000] text-white transition-all duration-1000 ${
+        className={`py-32 px-6 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 text-white transition-all duration-1000 ${
           visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
         }`}
       >
-        <div className="max-w-[980px] mx-auto">
+        <div className="max-w-[1100px] mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="order-2 md:order-1">
               <img
                 src="https://images.pexels.com/photos/4855419/pexels-photo-4855419.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt="AI Recommendations"
-                className="rounded-2xl shadow-2xl"
+                alt="Kids reading"
+                className="rounded-3xl shadow-2xl border-8 border-white"
               />
             </div>
             <div className="order-1 md:order-2 space-y-6">
-              <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
-                Your reading DNA,
+              <div className="text-6xl mb-4">🎯</div>
+              <h2 className="text-5xl md:text-6xl font-black tracking-tight">
+                Books Picked
                 <br />
-                decoded.
+                Just For YOU!
               </h2>
-              <p className="text-xl text-[#86868B] leading-relaxed">
-                Our AI analyzes your mood, pacing preferences, and themes to recommend books that truly resonate. No more endless scrolling through generic bestseller lists.
+              <p className="text-2xl leading-relaxed font-bold">
+                Our smart AI finds books that match what YOU like! No more boring lists or confusing searches.
               </p>
-              <ul className="space-y-4 text-lg">
-                <li className="flex items-center gap-3">
-                  <Sparkles className="h-6 w-6 text-[#0071E3]" />
-                  <span>Personalized AI recommendations</span>
+              <ul className="space-y-4 text-xl font-bold">
+                <li className="flex items-center gap-3 bg-white/20 rounded-2xl p-4 backdrop-blur-sm">
+                  <Sparkles className="h-8 w-8" />
+                  <span>AI picks books you'll LOVE</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <TrendingUp className="h-6 w-6 text-[#0071E3]" />
-                  <span>Mood-based matching</span>
+                <li className="flex items-center gap-3 bg-white/20 rounded-2xl p-4 backdrop-blur-sm">
+                  <TrendingUp className="h-8 w-8" />
+                  <span>Find books for any mood</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Zap className="h-6 w-6 text-[#0071E3]" />
-                  <span>Instant suggestions</span>
+                <li className="flex items-center gap-3 bg-white/20 rounded-2xl p-4 backdrop-blur-sm">
+                  <Zap className="h-8 w-8" />
+                  <span>Get answers in 2 minutes!</span>
                 </li>
               </ul>
             </div>
@@ -227,41 +250,42 @@ export default function Home() {
       <section
         data-animate
         id="how-it-works"
-        className={`py-32 px-6 bg-white transition-all duration-1000 delay-200 ${
+        className={`py-32 px-6 bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 transition-all duration-1000 delay-200 ${
           visibleSections.has('how-it-works') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
         }`}
       >
-        <div className="max-w-[980px] mx-auto">
+        <div className="max-w-[1100px] mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="space-y-6">
-              <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
-                Track every
+            <div className="space-y-8">
+              <div className="text-6xl">⚡</div>
+              <h2 className="text-5xl md:text-6xl font-black tracking-tight text-gray-800">
+                Stop Wasting
                 <br />
-                chapter.
+                Time Online!
               </h2>
-              <p className="text-xl text-[#86868B] leading-relaxed">
-                Build your personal library. Organize books into Want to Read, Currently Reading, and Finished. Track progress and never lose your place.
+              <p className="text-2xl text-gray-700 leading-relaxed font-bold">
+                Spend less time scrolling social media. More time reading amazing adventures!
               </p>
               <div className="grid grid-cols-3 gap-6 pt-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-[#0071E3] mb-2">2x</div>
-                  <div className="text-sm text-[#86868B]">More books<br />read yearly</div>
+                <div className="text-center bg-white rounded-3xl p-6 shadow-lg border-4 border-purple-200">
+                  <div className="text-5xl font-black text-purple-600 mb-2">2x</div>
+                  <div className="text-base font-bold text-gray-700">Read more<br />books!</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-[#0071E3] mb-2">95%</div>
-                  <div className="text-sm text-[#86868B]">Match<br />accuracy</div>
+                <div className="text-center bg-white rounded-3xl p-6 shadow-lg border-4 border-pink-200">
+                  <div className="text-5xl font-black text-pink-600 mb-2">95%</div>
+                  <div className="text-base font-bold text-gray-700">Books you'll<br />love!</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-[#0071E3] mb-2">∞</div>
-                  <div className="text-sm text-[#86868B]">Books to<br />discover</div>
+                <div className="text-center bg-white rounded-3xl p-6 shadow-lg border-4 border-blue-200">
+                  <div className="text-5xl font-black text-blue-600 mb-2">∞</div>
+                  <div className="text-base font-bold text-gray-700">Always<br />new books!</div>
                 </div>
               </div>
             </div>
             <div>
               <img
                 src="https://images.pexels.com/photos/2908984/pexels-photo-2908984.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt="Library Management"
-                className="rounded-2xl shadow-2xl"
+                alt="Kids with books"
+                className="rounded-3xl shadow-2xl border-8 border-white"
               />
             </div>
           </div>
