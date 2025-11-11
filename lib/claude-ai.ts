@@ -65,12 +65,16 @@ export async function getAIRecommendations(
 
     console.log('AI Response received:', content.substring(0, 200));
 
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    let jsonMatch = content.match(/```json\s*(\[[\s\S]*?\])\s*```/);
     if (!jsonMatch) {
+      jsonMatch = content.match(/\[[\s\S]*\]/);
+    }
+    const jsonString = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : null;
+    if (!jsonString) {
       throw new Error('No valid JSON found in response');
     }
 
-    const aiSuggestions = JSON.parse(jsonMatch[0]);
+    const aiSuggestions = JSON.parse(jsonString);
     console.log('AI suggested', aiSuggestions.length, 'books');
 
     // Fetch real book data from Google Books for each AI suggestion
@@ -255,7 +259,7 @@ function getMoodDescription(happySad: number, hopefulBleak: number): string {
 
 async function callGoogleAIStudio(prompt: string): Promise<string> {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_STUDIO_KEY}`,
+    `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${GOOGLE_AI_STUDIO_KEY}`,
     {
       method: 'POST',
       headers: {
@@ -343,12 +347,16 @@ export async function getVibeBasedRecommendations(
 
     console.log('AI Response received for vibe:', vibe);
 
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    let jsonMatch = content.match(/```json\s*(\[[\s\S]*?\])\s*```/);
     if (!jsonMatch) {
+      jsonMatch = content.match(/\[[\s\S]*\]/);
+    }
+    const jsonString = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : null;
+    if (!jsonString) {
       throw new Error('No valid JSON found in response');
     }
 
-    const aiSuggestions = JSON.parse(jsonMatch[0]);
+    const aiSuggestions = JSON.parse(jsonString);
     console.log('AI suggested', aiSuggestions.length, 'books for vibe:', vibe);
 
     const recommendations: AIBookRecommendation[] = [];
