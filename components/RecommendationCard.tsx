@@ -106,9 +106,13 @@ export function RecommendationCard({ recommendation, onAdded }: RecommendationCa
           }]);
 
         if (userBookError) throw userBookError;
-        toast.success('Added to Want to Read!');
+        toast.success('Added to Want to Read! Refreshing...');
         setAdded(true);
         onAdded?.();
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     } catch (error) {
       console.error('Error adding book:', error);

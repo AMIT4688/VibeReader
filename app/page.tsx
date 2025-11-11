@@ -111,13 +111,11 @@ export default function Home() {
           sessionStorage.removeItem('pendingRecommendation');
           sessionStorage.removeItem('redirectAfterAuth');
 
-          toast.success('Welcome! Adding book to your library...');
+          toast.success('Adding book to your library...');
 
           await addRecommendationToLibrary(recommendation);
 
-          setTimeout(() => {
-            router.push(redirectAfterAuth);
-          }, 1000);
+          window.location.href = redirectAfterAuth;
         } catch (error) {
           console.error('Error restoring recommendation:', error);
           sessionStorage.removeItem('pendingRecommendation');
@@ -350,7 +348,11 @@ export default function Home() {
       if (addError) throw addError;
 
       setAddedBooks(prev => new Set(prev).add(bookKey));
-      toast.success(`${book.title} added to your library!`);
+      toast.success(`${book.title} added to your library! Refreshing...`);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error('Error adding book:', error);
       toast.error('Failed to add book. Please try again.');
