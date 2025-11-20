@@ -42,12 +42,37 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
   const [showProgressDialog, setShowProgressDialog] = useState(false);
   const [progressInput, setProgressInput] = useState(userBook.progress_percent.toString());
 
-  function handleCardClick(e: React.MouseEvent) {
+  async function handleCardClick(e: React.MouseEvent) {
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('[role="menuitem"]')) {
       return;
     }
-    router.push(`/read/${userBook.id}`);
+
+    // Redirect all books to Google Books
+    let bookId = book.google_books_id;
+
+    // If no google_books_id, search for it
+    if (!bookId) {
+      try {
+        const searchQuery = encodeURIComponent(`${book.title} ${book.author || ''}`);
+        const searchUrl = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&maxResults=1`;
+        const response = await fetch(searchUrl);
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          bookId = data.items[0].id;
+        }
+      } catch (error) {
+        console.error('Error searching for book:', error);
+      }
+    }
+
+    // Open Google Books page
+    const googleBooksUrl = bookId
+      ? `https://books.google.com/books?id=${bookId}`
+      : `https://books.google.com/books?q=${encodeURIComponent(book.title)}`;
+
+    window.open(googleBooksUrl, '_blank');
   }
 
   const statusLabels: Record<BookStatus, string> = {
@@ -60,8 +85,8 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
     .filter((s) => s !== userBook.status);
 
   return (
-    <Card className="flex-shrink-0 w-[200px] hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCardClick}>
-      <CardContent className="p-4 space-y-3">
+    <Card className="flex-shrink-0 w-[240px] hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCardClick}>
+      <CardContent className="p-4 space-y-3 flex flex-col h-full">
         <div className="relative group">
           {book.cover_url && !imageError ? (
             <div className="relative">
@@ -74,7 +99,7 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                 <div className="text-white text-center">
                   <BookOpen className="h-8 w-8 mx-auto mb-2" />
-                  <p className="text-sm font-medium">Click to Read</p>
+                  <p className="text-sm font-medium">View on Google Books</p>
                 </div>
               </div>
             </div>
@@ -121,9 +146,18 @@ export function BookCard({ book, userBook, onMove, onDelete, onUpdateProgress }:
           </DropdownMenu>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-2 flex-1">
           <h3 className="font-semibold text-sm line-clamp-2 leading-tight">{book.title}</h3>
           <p className="text-xs text-muted-foreground line-clamp-1">{book.author}</p>
+          {book.description && (
+            <div className="bg-purple-50 rounded-lg p-2 border border-purple-100">
+              <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed italic">
+                {book.description.length > 150
+                  ? `${book.description.substring(0, 150)}...`
+                  : book.description}
+              </p>
+            </div>
+          )}
         </div>
 
         {userBook.status === 'currently_reading' && userBook.progress_percent > 0 && (
