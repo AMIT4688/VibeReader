@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/db';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Library, Sparkles, LogOut, Menu, X } from 'lucide-react';
+import { BookOpen, Library, Sparkles, LogOut, Menu, X, PenTool } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function Navigation() {
@@ -50,6 +50,7 @@ export function Navigation() {
   const links = [
     { href: '/library', label: 'Library', icon: Library },
     { href: '/recommendations', label: 'Recommendations', icon: Sparkles },
+    { href: '/writing-tools', label: 'Writing Tools', icon: PenTool },
   ];
 
   return (
