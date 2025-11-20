@@ -15,23 +15,25 @@ export interface SettingSuggestion {
   details: string[];
 }
 
-const SKYWORK_API_KEY = process.env.NEXT_PUBLIC_SKYWORK_API_KEY || '';
-const SKYWORK_API_URL = 'https://api.skywork.ai/v1/chat/completions';
+const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-async function callSkyworkAPI(prompt: string): Promise<string> {
-  if (!SKYWORK_API_KEY) {
-    throw new Error('Skywork API key is not configured. Please add NEXT_PUBLIC_SKYWORK_API_KEY to your environment variables.');
+async function callAIAPI(prompt: string): Promise<string> {
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('OpenRouter API key is not configured. Please add NEXT_PUBLIC_OPENROUTER_API_KEY to your environment variables.');
   }
 
   try {
-    const response = await fetch(SKYWORK_API_URL, {
+    const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SKYWORK_API_KEY}`,
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://vibereader.app',
+        'X-Title': 'VibeReader Writing Tools',
       },
       body: JSON.stringify({
-        model: 'skywork-o1-open-llama-3.1-8b',
+        model: 'meta-llama/llama-3.1-8b-instruct:free',
         messages: [
           {
             role: 'user',
@@ -45,15 +47,15 @@ async function callSkyworkAPI(prompt: string): Promise<string> {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Skywork API Error:', errorText);
-      throw new Error(`Skywork API error: ${response.status}`);
+      console.error('AI API Error:', errorText);
+      throw new Error(`AI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
 
     return data.choices?.[0]?.message?.content || '';
   } catch (error) {
-    console.error('Error calling Skywork API:', error);
+    console.error('Error calling AI API:', error);
     throw error;
   }
 }
@@ -89,7 +91,7 @@ Provide 3-5 specific, actionable suggestions for developing this character furth
 Focus on: personality traits, internal conflicts, character arcs, relationship dynamics, and unique quirks.`;
 
   try {
-    const response = await callSkyworkAPI(prompt);
+    const response = await callAIAPI(prompt);
 
     const jsonMatch = response.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
@@ -155,7 +157,7 @@ Format as JSON:
 }`;
 
   try {
-    const response = await callSkyworkAPI(prompt);
+    const response = await callAIAPI(prompt);
 
     const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (jsonMatch) {

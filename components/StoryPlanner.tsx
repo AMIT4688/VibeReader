@@ -231,14 +231,14 @@ export function StoryPlanner() {
           ) : (
             <div className="space-y-2">
               {stories.map((story) => (
-                <button
+                <div
                   key={story.id}
-                  onClick={() => selectStory(story)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                  className={`w-full text-left p-3 rounded-lg border-2 transition-all cursor-pointer ${
                     selectedStory?.id === story.id
                       ? 'border-green-500 bg-green-50'
                       : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
                   }`}
+                  onClick={() => selectStory(story)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
@@ -260,7 +260,7 @@ export function StoryPlanner() {
                       {story.genre}
                     </p>
                   )}
-                </button>
+                </div>
               ))}
             </div>
           )}

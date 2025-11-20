@@ -222,14 +222,14 @@ export function CharacterManager() {
           ) : (
             <div className="space-y-2">
               {characters.map((character) => (
-                <button
+                <div
                   key={character.id}
-                  onClick={() => selectCharacter(character)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                  className={`w-full text-left p-3 rounded-lg border-2 transition-all cursor-pointer ${
                     selectedCharacter?.id === character.id
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
                   }`}
+                  onClick={() => selectCharacter(character)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export function CharacterManager() {
                       {character.description}
                     </p>
                   )}
-                </button>
+                </div>
               ))}
             </div>
           )}
