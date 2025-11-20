@@ -15,48 +15,47 @@ export interface SettingSuggestion {
   details: string[];
 }
 
-const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_AI_STUDIO_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 async function callAIAPI(prompt: string): Promise<string> {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Google AI Studio API key is not configured. Please add NEXT_PUBLIC_GOOGLE_AI_STUDIO_API_KEY to your environment variables.');
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('OpenRouter API key is not configured. Please add NEXT_PUBLIC_OPENROUTER_API_KEY to your environment variables.');
   }
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://vibereader.app',
+        'X-Title': 'VibeReader Writing Tools',
       },
       body: JSON.stringify({
-        contents: [
+        model: 'meta-llama/llama-3.1-8b-instruct:free',
+        messages: [
           {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
+            role: 'user',
+            content: prompt,
           },
         ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 2000,
-        },
+        temperature: 0.7,
+        max_tokens: 2000,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI API Error:', errorText);
-      throw new Error(`AI API error: ${response.status} - ${errorText}`);
+      console.error('OpenRouter API Error:', errorText);
+      throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
 
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    return data.choices?.[0]?.message?.content || '';
   } catch (error) {
-    console.error('Error calling AI API:', error);
+    console.error('Error calling OpenRouter API:', error);
     throw error;
   }
 }

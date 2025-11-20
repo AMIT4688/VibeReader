@@ -24,7 +24,7 @@ export default function WritingToolsPage() {
             <h1 className="text-4xl font-black text-gray-900">AI Writing Tools</h1>
           </div>
           <p className="text-lg text-gray-600 max-w-3xl">
-            Enhanced with Google Gemini AI to help you create compelling characters and plot engaging stories.
+            Enhanced with AI to help you create compelling characters and plot engaging stories.
             Get AI-powered suggestions to bring your creative writing to life.
           </p>
         </div>
@@ -56,7 +56,7 @@ export default function WritingToolsPage() {
                     <h3 className="font-bold text-blue-900 mb-1">How Character Manager Works</h3>
                     <p className="text-sm text-blue-800">
                       Enter your character details like name, description, motivations, relationships, and backstory.
-                      Click "Get AI Suggestions" to receive personalized character development ideas from Google Gemini.
+                      Click "Get AI Suggestions" to receive personalized character development ideas.
                       The AI analyzes your character and provides suggestions for personality depth, conflicts, growth arcs, and unique traits.
                     </p>
                   </div>
@@ -73,7 +73,7 @@ export default function WritingToolsPage() {
                     <h3 className="font-bold text-green-900 mb-1">How Story Planner Works</h3>
                     <p className="text-sm text-green-800">
                       Input your story title, outline, genre, mood, pacing, and setting details.
-                      Click "Get Plot Ideas" to let Google Gemini generate chapter outlines, plot twists, and setting details.
+                      Click "Get Plot Ideas" to generate chapter outlines, plot twists, and setting details.
                       The AI creates structured story plans with chapter ideas, compelling twists, and rich setting descriptions tailored to your vision.
                     </p>
                   </div>
@@ -111,7 +111,7 @@ export default function WritingToolsPage() {
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">AI-Powered Insights</h3>
             <p className="text-sm text-gray-700">
-              Leverage Google Gemini's creative intelligence to overcome writer's block and discover fresh ideas for your stories.
+              Leverage AI creative intelligence to overcome writer's block and discover fresh ideas for your stories.
             </p>
           </Card>
         </div>
