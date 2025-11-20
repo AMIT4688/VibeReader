@@ -1,36 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --background: 39 41% 95%;
+    --foreground: 210 24% 16%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 210 24% 16%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 271 81% 56%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 330 81% 60%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 270 20% 96%;
-    --muted-foreground: 222 13% 45%;
-    --accent: 25 95% 53%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --popover-foreground: 210 24% 16%;
+    --primary: 210 24% 16%;
+    --primary-foreground: 39 41% 95%;
+    --secondary: 39 41% 92%;
+    --secondary-foreground: 210 24% 16%;
+    --muted: 39 41% 92%;
+    --muted-foreground: 210 11% 47%;
+    --accent: 11 69% 65%;
+    --accent-foreground: 39 41% 95%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 222 13% 90%;
-    --input: 222 13% 90%;
-    --ring: 271 81% 56%;
-    --chart-1: 271 81% 56%;
-    --chart-2: 330 81% 60%;
-    --chart-3: 25 95% 53%;
-    --chart-4: 197 71% 73%;
-    --chart-5: 262 52% 47%;
-    --radius: 0.75rem;
+    --border: 39 21% 85%;
+    --input: 39 21% 85%;
+    --ring: 210 24% 16%;
+    --chart-1: 11 69% 65%;
+    --chart-2: 210 24% 16%;
+    --chart-3: 45 93% 58%;
+    --chart-4: 190 66% 65%;
+    --chart-5: 280 67% 70%;
+    --radius: 0.5rem;
   }
 }
 
@@ -38,222 +36,7 @@
   * {
     @apply border-border;
   }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    font-weight: 900;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-from-bottom-8 {
-  from {
-    transform: translateY(2rem);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-from-bottom-12 {
-  from {
-    transform: translateY(3rem);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-from-left {
-  from {
-    transform: translateX(-3rem);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-from-right {
-  from {
-    transform: translateX(3rem);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-from-top {
-  from {
-    transform: translateY(-2rem);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes gradient-wave {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes twinkle {
-  0%, 100% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes confetti {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100px) rotate(720deg);
-    opacity: 0;
-  }
-}
-
-.animate-in {
-  animation-fill-mode: both;
-}
-
-.fade-in {
-  animation-name: fade-in;
-}
-
-.slide-in-from-bottom-8 {
-  animation-name: slide-in-from-bottom-8;
-}
-
-.slide-in-from-bottom-12 {
-  animation-name: slide-in-from-bottom-12;
-}
-
-.slide-in-from-left {
-  animation-name: slide-in-from-left;
-}
-
-.slide-in-from-right {
-  animation-name: slide-in-from-right;
-}
-
-.slide-in-from-top {
-  animation-name: slide-in-from-top;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-gradient-shift {
-  background-size: 200% 200%;
-  animation: gradient-shift 8s ease infinite;
-}
-
-.animate-gradient-wave {
-  background-size: 200% 200%;
-  animation: gradient-wave 20s ease infinite;
-}
-
-.animate-twinkle {
-  animation: twinkle 3s ease-in-out infinite;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out forwards;
-}
-
-.animate-confetti {
-  animation: confetti 1s ease-out forwards;
-}
-
-.duration-1000 {
-  animation-duration: 1000ms;
-}
-
-.duration-500 {
-  animation-duration: 500ms;
-}
-
-.delay-200 {
-  animation-delay: 200ms;
-}
-
-.delay-300 {
-  animation-delay: 300ms;
-}
-
-.delay-500 {
-  animation-delay: 500ms;
 }

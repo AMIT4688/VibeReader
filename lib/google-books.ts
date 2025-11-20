@@ -1,6 +1,6 @@
 import type { GoogleBook } from './db';
 
-const GOOGLE_BOOKS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY || '';
+const GOOGLE_BOOKS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY;
 const BASE_URL = 'https://www.googleapis.com/books/v1';
 
 export async function searchBooks(query: string, maxResults: number = 20): Promise<GoogleBook[]> {

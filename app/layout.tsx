@@ -4,11 +4,7 @@ import { Inter } from 'next/font/google';
 import { Navigation } from '@/components/Navigation';
 import { Toaster } from '@/components/ui/sonner';
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  fallback: ['system-ui', 'arial'],
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'ReadFocus - Distraction-Free Reading Habit Tracker',
