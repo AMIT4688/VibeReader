@@ -15,33 +15,34 @@ export interface SettingSuggestion {
   details: string[];
 }
 
-const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_AI_STUDIO_API_KEY || '';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 async function callAIAPI(prompt: string): Promise<string> {
-  if (!OPENROUTER_API_KEY) {
-    throw new Error('OpenRouter API key is not configured. Please add NEXT_PUBLIC_OPENROUTER_API_KEY to your environment variables.');
+  if (!GEMINI_API_KEY) {
+    throw new Error('Google AI Studio API key is not configured. Please add NEXT_PUBLIC_GOOGLE_AI_STUDIO_API_KEY to your environment variables.');
   }
 
   try {
-    const response = await fetch(OPENROUTER_API_URL, {
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://vibereader.app',
-        'X-Title': 'VibeReader Writing Tools',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-8b-instruct:free',
-        messages: [
+        contents: [
           {
-            role: 'user',
-            content: prompt,
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
           },
         ],
-        temperature: 0.7,
-        max_tokens: 2000,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2000,
+        },
       }),
     });
 
@@ -53,7 +54,7 @@ async function callAIAPI(prompt: string): Promise<string> {
 
     const data = await response.json();
 
-    return data.choices?.[0]?.message?.content || '';
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   } catch (error) {
     console.error('Error calling AI API:', error);
     throw error;
